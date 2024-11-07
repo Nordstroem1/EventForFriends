@@ -2,7 +2,7 @@ name: Deploy Action to PRODUCTION
 on:
   pull_request:
     branches:
-      - production
+      - Production
 
 jobs:
   run-on-dev-env:
