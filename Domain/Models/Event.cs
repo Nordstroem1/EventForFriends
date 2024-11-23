@@ -1,12 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Models
 {
-    internal class Event
+    public class Event
     {
+        [Required]
+        public Guid EventId { get; set; }
+
+        public string EventName { get; set; }
+        public string Description { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public string ImageUrl { get; set; }
+        public bool IsclosedEvent { get; set; }
+        public Event(Guid eventId, string eventName, string description, DateTime createdAt, DateTime startDate, DateTime endDate, string imageUrl, bool isclosedEvent)
+        {
+            EventId = eventId;
+            EventName = eventName;
+            Description = description;
+            CreatedAt = createdAt;
+            StartDate = startDate;
+            EndDate = endDate;
+            ImageUrl = imageUrl;
+            IsclosedEvent = isclosedEvent;
+        }
     }
 }
