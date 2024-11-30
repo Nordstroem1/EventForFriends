@@ -2,9 +2,8 @@
 
 namespace Application.Dtos
 {
-    public class UserDto
+    public class CreateUserDto
     {
-
         public string UserName { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
@@ -13,7 +12,7 @@ namespace Application.Dtos
         public bool IsAdmin { get; set; }
         public List<Event> Events { get; set; }
         public List<Message> Messages { get; set; }
-        public UserDto(string userName, string email, string password, int phoneNumber, DateTime createdAt, bool isAdmin, List<Event> events, List<Message>? messages)
+        public CreateUserDto(string userName, string email, string password, int phoneNumber, DateTime createdAt, bool isAdmin, List<Event> events, List<Message>? messages)
         {
             UserName = userName;
             Email = email;
