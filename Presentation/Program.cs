@@ -1,4 +1,7 @@
+using Domain.Models;
+using Infrastructure.Databases;
 using Infrastructure.DepencyInjection;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 

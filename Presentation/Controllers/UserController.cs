@@ -9,9 +9,12 @@ namespace Presentation.Controllers
     [Route("api/[controller]")]
     public class UserController : Controller
     {
-        private readonly IMediator _mediator;
-        public UserController(IMediator mediator)
+        private readonly IMediator _mediator; 
+        private readonly ILogger<UserController> _logger;
+
+        public UserController(IMediator mediator, ILogger<UserController> logger)
         {
+            _logger = logger;
             _mediator = mediator;
         }
 
@@ -22,15 +25,24 @@ namespace Presentation.Controllers
             {
                 return BadRequest(ModelState);
             }
-
-            var createdUser = await _mediator.Send(new CreateUserCommand(user));
-
-            if(createdUser == null)
+            try
             {
+
+                var createdUser = await _mediator.Send(new CreateUserCommand(user));
+
+                if(createdUser == null)
+                {
+                    _logger.LogError("Failed to create user");
+                    return BadRequest("Failed to create user");
+                }
+
+                return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id}, createdUser);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating the user.");
                 return BadRequest("Failed to create user");
             }
-
-            return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id}, createdUser);
         }
 
         [HttpGet("{id}")]
