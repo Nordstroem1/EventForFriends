@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(mySqlDb))]
-    [Migration("20241130183510_AddIdentitySupport")]
+    [Migration("20241201115143_AddIdentitySupport")]
     partial class AddIdentitySupport
     {
         /// <inheritdoc />

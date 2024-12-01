@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Models
 {
@@ -24,6 +23,8 @@ namespace Domain.Models
             CreatedAt = createdAt;
             Events = events;
             Messages = messages;
+            LockoutEnabled = true;
+            LockoutEnd = null;
         }
     }
 }

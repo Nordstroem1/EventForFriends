@@ -18,10 +18,13 @@ namespace Infrastructure.Databases
         public DbSet<Message> Messages { get; set; }
 
 
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    optionsBuilder.UseSqlServer(_configuration.GetConnectionString("DefaultConnection"));
-        //}
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer(_configuration.GetConnectionString("DefaultConnection"));
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
