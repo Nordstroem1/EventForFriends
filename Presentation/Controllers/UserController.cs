@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Application.Dtos;
 using Application.Commands.UserCommands;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Presentation.Controllers
 {
@@ -27,7 +28,6 @@ namespace Presentation.Controllers
             }
             try
             {
-
                 var createdUser = await _mediator.Send(new CreateUserCommand(user));
 
                 if(createdUser == null)
@@ -40,7 +40,7 @@ namespace Presentation.Controllers
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while creating the user.");
+                _logger.LogError(ex, "CreateUser Threw an exeption.");
                 return BadRequest("Failed to create user");
             }
         }

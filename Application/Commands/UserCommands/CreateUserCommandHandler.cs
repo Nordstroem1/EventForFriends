@@ -1,5 +1,6 @@
 ﻿using Domain.Models;
 using MediatR;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Identity;
 
 namespace Application.Commands.UserCommands
@@ -29,6 +30,13 @@ namespace Application.Commands.UserCommands
             if (!result.Succeeded)
             {
                 throw new Exception("User creation failed");
+            }
+
+            var roleResult = await _userManager.AddToRoleAsync(CreatedUser, request.UserDto.Role.ToString());
+            
+            if (!roleResult.Succeeded)
+            {
+                throw new Exception("Role creation failed");
             }
 
             return CreatedUser;
