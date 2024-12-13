@@ -20,9 +20,10 @@ namespace Infrastructure.DepencyInjection
                 .AddEntityFrameworkStores<mySqlDb>()
                 .AddDefaultTokenProviders();
 
+            var RoleManager = services.BuildServiceProvider().GetService<RoleManager<IdentityRole<Guid>>>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IGenericRepository<User>, GenericRepository<User>>();
-
+            
             return services;
         }
     }

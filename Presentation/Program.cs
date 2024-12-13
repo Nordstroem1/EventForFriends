@@ -1,6 +1,5 @@
-using Domain.Models;
-using Infrastructure.Databases;
 using Infrastructure.DepencyInjection;
+using Infrastructure.RoleInitializer;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +10,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructureLayer(builder.Configuration.GetConnectionString("DefaultConnection")!);
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+    await RoleInitializer.InitializeAsync(roleManager);
+}
 
 if (app.Environment.IsDevelopment())
 {

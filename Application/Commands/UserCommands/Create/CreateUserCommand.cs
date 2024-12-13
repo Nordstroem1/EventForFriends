@@ -2,14 +2,14 @@
 using Domain.Models;
 using MediatR;
 
-namespace Application.Commands.UserCommands
+namespace Application.Commands.UserCommands.Create
 {
-    public class CreateUserCommand : IRequest<User>
+    public class CreateUserCommand : IRequest<OperationResult<User>>
     {
         public CreateUserCommand(CreateUserDto userDto)
         {
             UserDto = userDto;
         }
-        public CreateUserDto UserDto { get;}
+        public CreateUserDto UserDto { get; }
     }
 }
