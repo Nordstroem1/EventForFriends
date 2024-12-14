@@ -19,7 +19,7 @@ namespace Application.Queries.Login
         {
             User foundUser = null;
 
-            foundUser = await LoginWithUsernameOrEmail(request, foundUser);
+            foundUser = await LoginWithUsernameOrEmail  (request, foundUser);
 
             if (foundUser == null)
             {
