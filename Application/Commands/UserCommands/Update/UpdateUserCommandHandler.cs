@@ -1,8 +1,6 @@
-﻿using Application.Dtos;
-using Domain.Models;
+﻿using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.FileProviders;
 
 namespace Application.Commands.UserCommands.Update
 {

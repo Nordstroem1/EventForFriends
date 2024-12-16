@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Application.Dtos;
 using Application.Commands.UserCommands.Create;
 using Application.Commands.UserCommands.Delete;
+using Application.Commands.UserCommands.Update;
+using Application.Queries.GetUserById;
 
 namespace Presentation.Controllers
 {
@@ -65,15 +67,42 @@ namespace Presentation.Controllers
             return Ok(new {result.Succeeded, result.Data});
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(Guid id,CreateUserDto user)
+        public async Task<IActionResult> UpdateUser(Guid id, UpdateUserDto updatedUser)
         {
-            return Ok();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _mediator.Send(new UpdateUserCommand(id, updatedUser));
+
+            if (!result.Succeeded)
+            {
+                _logger.LogError("Failed to update user");
+                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
+            }
+
+            return Ok(new { result.Succeeded, result.Data });
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(Guid id)
         {
-            return Ok();
+            if(id == Guid.Empty)
+            {
+                _logger.LogError("Invalid user id");
+                return BadRequest("Invalid user id");
+            }
+
+            var result = await _mediator.Send(new GetUserByIdQuery(id));
+
+            if (result == null || !result.Succeeded)
+            {
+                _logger.LogError("Failed to get user");
+                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
+            }
+
+            return Ok(new { result.Succeeded, result.Data });
         }
     }
 }
