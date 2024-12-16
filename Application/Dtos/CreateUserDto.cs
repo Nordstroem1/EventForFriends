@@ -9,17 +9,17 @@ namespace Application.Dtos
         public string Password { get; set; }
         public int PhoneNumber { get; set; }
         public DateTime CreatedAt { get; set; }
-        public bool IsAdmin { get; set; }
+        public RoleEnums.Roles Role { get; set; }
         public List<Event> Events { get; set; }
         public List<Message> Messages { get; set; }
-        public CreateUserDto(string userName, string email, string password, int phoneNumber, DateTime createdAt, bool isAdmin, List<Event> events, List<Message>? messages)
+        public CreateUserDto(string userName, string email, string password, int phoneNumber, DateTime createdAt, RoleEnums roleEnums, List<Event> events, List<Message>? messages)
         {
             UserName = userName;
             Email = email;
             Password = password;
             PhoneNumber = phoneNumber;
             CreatedAt = createdAt;
-            IsAdmin = isAdmin;
+            Role = RoleEnums.Roles.user;
             Events = events;
             Messages = messages;
         }

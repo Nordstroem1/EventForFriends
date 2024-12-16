@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(mySqlDb))]
-    [Migration("20241130183510_AddIdentitySupport")]
-    partial class AddIdentitySupport
+    [Migration("20241212122503_updatedUserClass")]
+    partial class updatedUserClass
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
