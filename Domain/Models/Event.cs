@@ -6,16 +6,16 @@ namespace Domain.Models
     {
         [Required]
         public Guid EventId { get; set; }
-        [Required]
+        [Required(ErrorMessage = "The eventname is to long or short")]
         [MaxLength(50)]
         [MinLength(2)]
         public string EventName { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Discription to long")]
         [MaxLength(700)]
         public string Description { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime StartDate { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Event must have an end date")]
         public DateTime EndDate { get; set; }
         public string? ImageUrl { get; set; }
         public bool IsclosedEvent { get; set; }

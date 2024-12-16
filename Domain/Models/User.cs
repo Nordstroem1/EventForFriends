@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Models
@@ -9,6 +10,7 @@ namespace Domain.Models
         public List<Event> Events { get; set; }
         public List<Message> Messages { get; set; }
         [NotMapped]
+        [Required(ErrorMessage = "Role is required")]
         public RoleEnums.Roles Role { get; set; }
 
         public User()
