@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Application.Dtos;
 using Application.Commands.UserCommands;
 using Microsoft.AspNetCore.Authorization;
+using Application.Commands.UserCommands.Create;
 
 namespace Presentation.Controllers
 {
@@ -36,7 +37,7 @@ namespace Presentation.Controllers
                     return BadRequest("Failed to create user");
                 }
 
-                return CreatedAtAction(nameof(GetUserById), new { id = createdUser.Id}, createdUser);
+                return CreatedAtAction(nameof(GetUserById), new { id = createdUser}, createdUser);
             }
             catch(Exception ex)
             {
