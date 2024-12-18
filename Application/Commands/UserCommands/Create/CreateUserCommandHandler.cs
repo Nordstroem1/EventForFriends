@@ -1,15 +1,18 @@
 ﻿using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.UserCommands.Create
 {
     public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, OperationResult<User>>
     {
         private readonly UserManager<User> _userManager;
-        public CreateUserCommandHandler(UserManager<User> userManager)
+        private readonly ILogger<CreateUserCommandHandler> _logger;
+        public CreateUserCommandHandler(UserManager<User> userManager, ILogger<CreateUserCommandHandler> logger)
         {
             _userManager = userManager;
+            _logger = logger;
         }
         public async Task<OperationResult<User>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
@@ -19,7 +22,7 @@ namespace Application.Commands.UserCommands.Create
                 {
                     Id = Guid.NewGuid(),
                     UserName = request.UserDto.UserName,
-                    PhoneNumber = request.UserDto.PhoneNumber.ToString(),
+                    PhoneNumber = request.UserDto.PhoneNumber,
                     Email = request.UserDto.Email,
                     Role = RoleEnums.Roles.user,
                     CreatedAt = DateTime.UtcNow,
@@ -31,14 +34,20 @@ namespace Application.Commands.UserCommands.Create
 
                 if (!result.Succeeded)
                 {
-                    return OperationResult<User>.Fail("Failed to create user", "Application");
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    _logger.LogError($"Error when creating a user: {errors}");
+
+                    return OperationResult<User>.Fail($"Failed to create user: {errors}", "Application");
                 }
 
                 var roleResult = await _userManager.AddToRoleAsync(CreatedUser,CreatedUser.Role.ToString());
 
                 if (!roleResult.Succeeded)
                 {
-                    return OperationResult<User>.Fail("Failed to add role", "Application");
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    _logger.LogError($"Error when creating a user: {errors}");
+
+                    return OperationResult<User>.Fail($"Failed to create user: {errors}", "Application");
                 }
 
                 return OperationResult<User>.Success(CreatedUser);
