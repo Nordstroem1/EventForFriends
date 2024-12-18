@@ -25,7 +25,7 @@ namespace Infrastructure.DepencyInjection
                 .AddDefaultTokenProviders();
             
             var jwtSettings = services.BuildServiceProvider().GetService<IConfiguration>().GetSection("JwtSettings");
-            var secretKey = jwtSettings["secretKey"];
+            var secretKey = jwtSettings["secret"];
 
             services.AddAuthentication(options =>
             {
@@ -45,10 +45,19 @@ namespace Infrastructure.DepencyInjection
                 };
             });
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Admin", policy =>
+                {
+                    policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
+                    policy.RequireAuthenticatedUser();
+                });
+            });
+
             var RoleManager = services.BuildServiceProvider().GetService<RoleManager<IdentityRole<Guid>>>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IGenericRepository<User>, GenericRepository<User>>();
-            
+
             return services;
         }
     }

@@ -5,7 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Application.TokenHelper
+namespace Application.Token
 {
     public class TokenHelper
     {
@@ -24,7 +24,7 @@ namespace Application.TokenHelper
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Role, user.Role)
+                    new Claim(ClaimTypes.Role, user.Role.ToString())
                 }),
 
                 Expires = DateTime.UtcNow.AddMinutes(30),
