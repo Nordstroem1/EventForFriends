@@ -11,19 +11,17 @@ namespace Application.Dtos
         [EmailAddress]
         public string Email { get; set; }
         [Required(ErrorMessage = "Password is required.")]
+        [MinLength(6, ErrorMessage = "Password must be at least 6 characters.")]
         public string Password { get; set; }
         [Phone]
         [Required(ErrorMessage = "Phonenumber is required")]
         public int PhoneNumber { get; set; }
-        [Required(ErrorMessage = "Role is required")]
-        public RoleEnums.Roles Role { get; set; }
-        public CreateUserDto(string userName, string email, string password, int phoneNumber, RoleEnums roleEnums)
+        public CreateUserDto(string userName, string email, string password, int phoneNumber)
         {
             UserName = userName;
             Email = email;
             Password = password;
             PhoneNumber = phoneNumber;
-            Role = RoleEnums.Roles.user;
         }
     }
 }

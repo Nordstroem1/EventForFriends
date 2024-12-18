@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using MediatR;
 using Application.Token;
-using Application.Interfaces;
+using Domain.Interfaces;
+using Infrastructure.Data;
 
 namespace Application.DependencyInjection
 {
@@ -17,6 +18,5 @@ namespace Application.DependencyInjection
 
             return services;
         }
-
     }
 }

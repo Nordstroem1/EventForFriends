@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+﻿using Domain.Interfaces;
 using Infrastructure.Databases;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;

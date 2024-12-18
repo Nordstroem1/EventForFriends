@@ -21,7 +21,7 @@ namespace Application.Commands.UserCommands.Create
                     UserName = request.UserDto.UserName,
                     PhoneNumber = request.UserDto.PhoneNumber.ToString(),
                     Email = request.UserDto.Email,
-                    Role = request.UserDto.Role,
+                    Role = RoleEnums.Roles.user,
                     CreatedAt = DateTime.UtcNow,
                     Events = new List<Event>(),
                     Messages = new List<Message>()
@@ -34,7 +34,7 @@ namespace Application.Commands.UserCommands.Create
                     return OperationResult<User>.Fail("Failed to create user", "Application");
                 }
 
-                var roleResult = await _userManager.AddToRoleAsync(CreatedUser, request.UserDto.Role.ToString());
+                var roleResult = await _userManager.AddToRoleAsync(CreatedUser,CreatedUser.Role.ToString());
 
                 if (!roleResult.Succeeded)
                 {
