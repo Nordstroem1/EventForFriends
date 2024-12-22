@@ -1,21 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Models
+namespace Application.Dtos
 {
-    public class Event
+    public class CreateEventDto
     {
-        [Required]
-        public Guid EventId { get; set; }
         [Required(ErrorMessage = "The eventname is to long or short")]
         [MaxLength(50)]
         [MinLength(2)]
         public string EventName { get; set; }
-        [Required(ErrorMessage = "Discription to long")]
+        [Required]
         [MaxLength(700)]
         public string Description { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime StartDate { get; set; }
-        [Required(ErrorMessage = "Event must have an end date")]
+        [Required]
         public DateTime EndDate { get; set; }
         public string? ImageUrl { get; set; }
         public bool IsclosedEvent { get; set; }
@@ -23,10 +21,9 @@ namespace Domain.Models
         public string Location { get; set; }
         public int Likes { get; set; } = 0;
 
-        public Event(){}
-        public Event(Guid eventId, string eventName, string description, DateTime createdAt, DateTime startDate, DateTime endDate, string imageUrl, bool isclosedEvent, string createdBy,  string location, int likes)
+        public CreateEventDto() { }
+        public CreateEventDto( string eventName, string description, DateTime createdAt, DateTime startDate, DateTime endDate, string imageUrl, bool isclosedEvent, string createdBy, string location, int likes)
         {
-            EventId = eventId;
             EventName = eventName;
             Description = description;
             CreatedAt = createdAt;
@@ -38,5 +35,6 @@ namespace Domain.Models
             Location = location;
             Likes = likes;
         }
+
     }
 }
