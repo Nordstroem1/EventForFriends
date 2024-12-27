@@ -1,4 +1,5 @@
-﻿using Application.Dtos;
+﻿using Application.Commands.EventCommands.CreateEvent;
+using Application.Dtos;
 using Azure;
 using Domain.Models;
 using MediatR;
@@ -31,23 +32,33 @@ namespace Presentation.Controllers
             }
             try
             {
-                var logedInUser = _userManager.FindByNameAsync(ClaimTypes.NameIdentifier);
-                
-                if (logedInUser.Id == null)
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (userId == null)
                 {
-                    return Unauthorized(OperationResult<User>.Fail("User is not logged in.","EventController"));
+                    return Unauthorized(OperationResult<User>.Fail("User is not logged in.", "EventController"));
                 }
-                else if(logedInUser == null)
+
+                var logedInUser = await _userManager.FindByIdAsync(userId);
+
+                if (logedInUser == null)
                 {
                     return Unauthorized(OperationResult<User>.Fail("Could not find user.", "EventController"));
                 }
 
-                var result = await _mediator.Send(new CreateEventCommand(eventDto, logedInUser.Id));
+                var result = await _mediator.Send(new CreateEventCommand(eventDto, logedInUser.Id.ToString()));
+
+                if(!result.Succeeded)
+                {
+                    return BadRequest(OperationResult<Event>.Fail("Could Not create user.", "Controller"));
+                }
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "CreateEvent Threw an exeption.");
-                return BadRequest(OperationResult<Event>.Fail("Could Not create user.","Controller"));
+                return BadRequest(OperationResult<Event>.Fail("Could Not create user.", "Controller"));
             }
         }
     }

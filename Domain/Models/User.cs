@@ -13,11 +13,6 @@ namespace Domain.Models
         [Required(ErrorMessage = "Role is required")]
         public RoleEnums.Roles Role { get; set; }
 
-        public User()
-        {
-            Events = new List<Event>();
-            Messages = new List<Message>();
-        }
         public User(Guid userId, string userName, string email, int phoneNumber, string password, DateTime createdAt, RoleEnums.Roles role, List<Event>? events, List<Message>? messages)
         {
             Id = userId;
@@ -31,6 +26,8 @@ namespace Domain.Models
             LockoutEnabled = true;
             LockoutEnd = null;
             Role = role;
+            Events = new List<Event>();
+            Messages = new List<Message>();
         }
     }
 }
