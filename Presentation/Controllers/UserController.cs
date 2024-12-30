@@ -4,9 +4,10 @@ using Application.Dtos;
 using Application.Commands.UserCommands.Create;
 using Application.Commands.UserCommands.Delete;
 using Application.Commands.UserCommands.Update;
-using Application.Queries.GetUserById;
+using Application.Queries.UserQueries.GetUserById;
 using Application.Queries.Login;
 using Application.Dtos.User;
+using Application.Queries.UserQueries.GetAllUsers;
 
 namespace Presentation.Controllers
 {
@@ -103,6 +104,19 @@ namespace Presentation.Controllers
                 _logger.LogError("Failed to get user");
                 return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
             }
+
+            return Ok(new { result.Succeeded, result.Data });
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var result = await _mediator.Send(new GetAllUserQuery());
+
+            if (result == null || !result.Succeeded)
+            {
+                _logger.LogError("Failed to get users");
+                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
+            }   
 
             return Ok(new { result.Succeeded, result.Data });
         }
