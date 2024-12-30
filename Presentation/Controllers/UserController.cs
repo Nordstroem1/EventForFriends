@@ -8,6 +8,7 @@ using Application.Queries.UserQueries.GetUserById;
 using Application.Queries.Login;
 using Application.Dtos.User;
 using Application.Queries.UserQueries.GetAllUsers;
+using Application.Commands.UserCommands.ChangeRole;
 
 namespace Presentation.Controllers
 {
@@ -134,6 +135,24 @@ namespace Presentation.Controllers
             if (!result.Succeeded)
             {
                 _logger.LogError("Failed to login");
+                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
+            }
+
+            return Ok(new { result.Succeeded, result.Data });
+        }
+        [HttpPut("Change role")]
+        public async Task<IActionResult> ChangeRole([FromBody] ChangeRoleDto changeRoleDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _mediator.Send(new ChangeRoleCommand(changeRoleDto));
+            
+            if (!result.Succeeded)
+            {
+                _logger.LogError("Failed to change role");
                 return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
             }
 
