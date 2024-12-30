@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using MediatR;
 using Application.Token;
 using Domain.Interfaces;
 using Infrastructure.Data;

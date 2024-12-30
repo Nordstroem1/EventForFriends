@@ -1,7 +1,7 @@
 ﻿using Domain.Models;
 using MediatR;
 
-namespace Application.Queries.GetUserById
+namespace Application.Queries.UserQueries.GetUserById
 {
     public class GetUserByIdQuery : IRequest<OperationResult<User>>
     {

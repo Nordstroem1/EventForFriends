@@ -6,6 +6,7 @@ using Application.Commands.UserCommands.Delete;
 using Application.Commands.UserCommands.Update;
 using Application.Queries.GetUserById;
 using Application.Queries.Login;
+using Application.Dtos.User;
 
 namespace Presentation.Controllers
 {
