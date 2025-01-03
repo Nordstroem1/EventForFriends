@@ -1,6 +1,6 @@
 # Event Manager 🎉
 
-Welcome to **Event Manager**! This project is a platform where you and your friends can create events, leave comments, and interact seamlessly. It's built to be both functional and modern, leveraging robust technologies to ensure a great user experience.
+Welcome to **Event Manager**! This project is a platform where my friends and I (or anyone) can create events, leave comments, and interact seamlessly. It's built to be both functional and modern, leveraging robust technologies to ensure a great user experience.
 
 ## Features ✨
 - **Event Creation:** Organize and share events effortlessly.
@@ -20,34 +20,12 @@ Welcome to **Event Manager**! This project is a platform where you and your frie
 ### Frontend
 - **HTML5**, **CSS3**, **JavaScript**: Crafting the user interface.
 
-## How to Run 🚀
-
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/yourusername/event-manager.git
-   ```
-
-2. Navigate to the project directory:
-   ```bash
-   cd event-manager
-   ```
-
-3. Build and run the application:
-   ```bash
-   dotnet run
-   ```
-
-4. Access the app at `http://localhost:5000` in your browser.
-
 ## Contributions 🤝
 We welcome contributions from the community! Feel free to:
 - Report issues
 - Suggest new features
 - Submit pull requests
 
-## License 📜
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+In the future, it is supposed to be hosted on Azure.
 
----
-
-Thank you for checking out Event Manager! Let's make event planning fun and collaborative. 🎈
+Thank you for checking out Event Manager! 🎈
