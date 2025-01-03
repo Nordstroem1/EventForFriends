@@ -1,12 +1,7 @@
 using Application.DependencyInjection;
 using Infrastructure.DepencyInjection;
 using Infrastructure.RoleInitializer;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using System.Reflection;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +9,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddApplicationLayer();
-builder.Services.AddInfrastructureLayer(builder.Configuration.GetConnectionString("DefaultConnection")!);
+builder.Services.AddInfrastructureLayer(builder.Configuration.GetConnectionString("DefaultConnection")!, builder.Configuration);
 
 var app = builder.Build();
 

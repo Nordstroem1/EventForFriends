@@ -14,7 +14,7 @@ namespace Infrastructure.DepencyInjection
 {
     public static class DepencyInjection
     {
-        public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services, string connectionString)
+        public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services, string connectionString,IConfiguration configuration)
         {
             services.AddDbContext<mySqlDb>(options =>
             {
@@ -24,7 +24,7 @@ namespace Infrastructure.DepencyInjection
                 .AddEntityFrameworkStores<mySqlDb>()
                 .AddDefaultTokenProviders();
             
-            var jwtSettings = services.BuildServiceProvider().GetService<IConfiguration>().GetSection("JwtSettings");
+            var jwtSettings = configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings["secret"];
 
             services.AddAuthentication(options =>
@@ -54,7 +54,6 @@ namespace Infrastructure.DepencyInjection
                 });
             });
 
-            var RoleManager = services.BuildServiceProvider().GetService<RoleManager<IdentityRole<Guid>>>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IGenericRepository<User>, GenericRepository<User>>();
 

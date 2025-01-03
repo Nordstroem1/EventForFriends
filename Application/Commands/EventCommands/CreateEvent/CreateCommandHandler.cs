@@ -19,33 +19,43 @@ namespace Application.Commands.EventCommands.CreateEvent
 
         public async Task<OperationResult<Event>> Handle(CreateEventCommand request, CancellationToken cancellationToken)
         {
-            if(request.EventDto == null)
+            try
             {
-                _logger.LogError("Event data is required");
-                return OperationResult<Event>.Fail("Event data is required", "Applicaton");
+
+                if (request.EventDto == null)
+                {
+                    _logger.LogError("Event data is required");
+                    return OperationResult<Event>.Fail("Event data is required", "Applicaton");
+                }
+
+                var foundUser = await _userManager.FindByIdAsync(request.UserId);
+
+                if (foundUser == null)
+                {
+                    _logger.LogError("User not found");
+                    return OperationResult<Event>.Fail("User not found", "Applicaton");
+                }
+
+                var newEvent = new Event
+                {
+                    EventId = Guid.NewGuid(),
+                    EventName = request.EventDto.EventName,
+                    Description = request.EventDto.Description,
+                    Location = request.EventDto.Location,
+                    StartDate = request.EventDto.StartDate,
+                    EndDate = request.EventDto.EndDate,
+                    CreatedBy = request.UserId
+                };
+
+                await _eventRepository.AddAsync(newEvent);
+                _logger.LogInformation("Event created successfully");
+
+                return OperationResult<Event>.Success(newEvent);
             }
-
-            var foundUser = await _userManager.FindByIdAsync(request.UserId);
-
-            if(foundUser == null)
+            catch
             {
-                _logger.LogError("User not found");
-                return OperationResult<Event>.Fail("User not found", "Applicaton");
+                return OperationResult<Event>.Fail("Unexpected error", "Applicaton");
             }
-
-            var newEvent = new Event
-            {
-                EventId = Guid.NewGuid(),
-                EventName = request.EventDto.EventName,
-                Description = request.EventDto.Description,
-                Location = request.EventDto.Location,
-                StartDate = request.EventDto.StartDate,
-                EndDate = request.EventDto.EndDate,
-                CreatedBy = request.UserId
-            };
-
-            await _eventRepository.AddAsync(newEvent);
-            return OperationResult<Event>.Success(newEvent);
         }
     }
 }

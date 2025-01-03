@@ -18,43 +18,45 @@ namespace Application.Commands.UserCommands.Create
         {
             try
             {
-                User CreatedUser = new User
+                var createdUser = new User
                 {
                     Id = Guid.NewGuid(),
                     UserName = request.UserDto.UserName,
-                    PhoneNumber = request.UserDto.PhoneNumber,
                     Email = request.UserDto.Email,
-                    Role = RoleEnums.Roles.user,
+                    PhoneNumber = request.UserDto.PhoneNumber,
+                    PasswordHash = request.UserDto.Password,
                     CreatedAt = DateTime.UtcNow,
-                    Events = new List<Event>(),
-                    Messages = new List<Message>()
+                    Role = RoleEnums.Roles.user,
+                    Comments = new List<Comment>(),
+                    Events = new List<Event>()
                 };
 
-                var result = await _userManager.CreateAsync(CreatedUser, request.UserDto.Password);
+                var userPassword = await _userManager.CreateAsync(createdUser, request.UserDto.Password);
 
-                if (!result.Succeeded)
+                if (!userPassword.Succeeded)
                 {
-                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    var errors = string.Join(", ", userPassword.Errors.Select(e => e.Description));
                     _logger.LogError($"Error when creating a user: {errors}");
 
                     return OperationResult<User>.Fail($"Failed to create user: {errors}", "Application");
                 }
 
-                var roleResult = await _userManager.AddToRoleAsync(CreatedUser,CreatedUser.Role.ToString());
+                var roleResult = await _userManager.AddToRoleAsync(createdUser, createdUser.Role.ToString());
 
                 if (!roleResult.Succeeded)
                 {
-                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    var errors = string.Join(", ", userPassword.Errors.Select(e => e.Description));
                     _logger.LogError($"Error when creating a user: {errors}");
 
                     return OperationResult<User>.Fail($"Failed to create user: {errors}", "Application");
                 }
+                _logger.LogInformation("User added successfully.");
 
-                return OperationResult<User>.Success(CreatedUser);
+                return OperationResult<User>.Success(createdUser);
             }
             catch (Exception ex)
             {
-                throw new Exception("Unexpeted error." + ex.Message);
+                throw new Exception("Unexpected error." + ex.Message);
             }
         }
     }

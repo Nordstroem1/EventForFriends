@@ -2,29 +2,15 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Databases
 {
     public class mySqlDb : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     {
-        private readonly IConfiguration _configuration;
-        public mySqlDb(DbContextOptions<mySqlDb> options, IConfiguration config) : base(options)
-        {
-            _configuration = config;
-        }
+        public mySqlDb(DbContextOptions<mySqlDb> options) : base(options) { }
         public DbSet<User> Users { get; set; }
         public DbSet<Event> Events { get; set; }
-        public DbSet<Message> Messages { get; set; }
-
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder.UseSqlServer(_configuration.GetConnectionString("DefaultConnection"));
-            }
-        }
+        public DbSet<Comment> Comment { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
