@@ -14,6 +14,7 @@ namespace Application.DependencyInjection
             services.AddMediatR(config => config.RegisterServicesFromAssemblies(assembly));
             services.AddScoped<TokenHelper>();
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddSignalR();
 
             return services;
         }

@@ -26,8 +26,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Queries\CommentQueries\GetCommentById\" />
-  </ItemGroup>
-
 </Project>
