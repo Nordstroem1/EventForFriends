@@ -6,12 +6,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.EventCommands.CreateEvent
 {
-    public class CreateCommandHandler : IRequestHandler<CreateEventCommand, OperationResult<Event>>
+    public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, OperationResult<Event>>
     {
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly ILogger<CreateCommandHandler> _logger;
+        private readonly ILogger<CreateEventCommandHandler> _logger;
         private readonly IGenericRepository<Event> _eventRepository;
-        public CreateCommandHandler(UserManager<IdentityUser> userManager, ILogger<CreateCommandHandler> logger)
+        public CreateEventCommandHandler(UserManager<IdentityUser> userManager, ILogger<CreateEventCommandHandler> logger)
         {
             _userManager = userManager;
             _logger = logger;

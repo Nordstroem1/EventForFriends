@@ -7,11 +7,11 @@ using System.Diagnostics.Eventing.Reader;
 
 namespace Application.Commands.EventCommands.DeleteEvent
 {
-    public class DeleteCommandHandler : IRequestHandler<DeleteEventCommand, OperationResult<Guid>>
+    public class DeleteEventCommandHandler : IRequestHandler<DeleteEventCommand, OperationResult<Guid>>
     {
         private readonly IGenericRepository<Event> _eventRepository;
-        private readonly ILogger<DeleteCommandHandler> _logger;
-        public DeleteCommandHandler(IGenericRepository<Event> eventRepository, ILogger<DeleteCommandHandler> logger)
+        private readonly ILogger<DeleteEventCommandHandler> _logger;
+        public DeleteEventCommandHandler(IGenericRepository<Event> eventRepository, ILogger<DeleteEventCommandHandler> logger)
         {
             _eventRepository = eventRepository;
             _logger = logger;

@@ -1,5 +1,6 @@
 ﻿using Application.Commands.EventCommands.CreateEvent;
 using Application.Commands.EventCommands.DeleteEvent;
+using Application.Commands.EventCommands.LikeEvent;
 using Application.Commands.EventCommands.UpdateEvent;
 using Application.Dtos.Event;
 using Domain.Models;
@@ -102,18 +103,45 @@ namespace Presentation.Controllers
         [HttpDelete("deleteEvent")]
         public async Task<IActionResult> DeleteEvent([FromBody] Guid EventId)
         {
+            try
+            {
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var result = await _mediator.Send(new DeleteEventCommand(EventId));
+                if (!result.Succeeded || result.Data == Guid.Empty)
+                {
+                    return BadRequest(OperationResult<Guid>.Fail("Could Not create user.", "Controller"));
+                }
+
+                return Ok(OperationResult<Guid>.Success(result.Data));
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError("Unexpected error");
+                return BadRequest(OperationResult<User>.Fail("Unexpected error","Controller"));
+            }
+        }
+
+        [HttpPost("likeEvent")]
+        public async Task<IActionResult> LikeEvent([FromBody]LikeEventDto likeEventDto)
+        {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
-            }
-            
-            var result = await _mediator.Send(new DeleteEventCommand(EventId));
-            if (!result.Succeeded || result.Data == Guid.Empty)
-            {
-                return BadRequest(OperationResult<Guid>.Fail("Could Not create user.", "Controller"));
+                return BadRequest(ModelState); 
             }
 
-            return Ok(OperationResult<Guid>.Success(result.Data));
+            var result = await _mediator.Send(new LikeEventCommand(likeEventDto));
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+
+            return Ok(result.Data);
         }
     }
 }
