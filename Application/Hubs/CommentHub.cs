@@ -3,24 +3,38 @@ using Application.Commands.CommentCommands.DeleteComment;
 using Application.Commands.CommentCommands.UpdateComment;
 using Application.Dtos.Comment;
 using Application.Queries.CommentQueries.GetCommentById;
+using Domain.Models;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.Design;
+using System.Security.Claims;
 
 namespace Application.Hubs
 {
     public class CommentHub : Hub
     {
         private readonly IMediator _mediator;
-        public CommentHub(IMediator mediator)
+        private readonly UserManager<User> _userManager;
+        private readonly ILogger<CommentHub> _logger;
+
+        public CommentHub(IMediator mediator, UserManager<User> userManager, ILogger<CommentHub> logger)
         {
             _mediator = mediator;
+            _userManager = userManager;
+            _logger = logger;
         }
         public async Task CreateComment(CreateCommentDto commentdto,Guid UserId)
         {
+            await FindUser();
+
             var result = await _mediator.Send(new CreateComment(commentdto, UserId));
+            
             if (result.Succeeded)
             {
-                await Clients.All.SendAsync("CommentCreated", result.Data);
+                await Clients.Group(commentdto.EventId.ToString()).SendAsync("CommentCreated", result.Data);
             }
             else
             {
@@ -32,7 +46,7 @@ namespace Application.Hubs
         {
             if (commentId == Guid.Empty)
             {
-                await Clients.Caller.SendAsync("Error", "Invalid commentDto commentID");
+                await Clients.Caller.SendAsync("Error", "Invalid foundComment ID.");
                 return;
             }
 
@@ -47,11 +61,13 @@ namespace Application.Hubs
             }
         }
         public async Task UpdateComment(UpdateCommentDto commentDto,Guid commentId) 
-        { 
+        {
+            await FindUser();
+
             var result = await _mediator.Send(new UpdateCommentCommand(commentId, commentDto));
             if (result.Succeeded)
             {
-                await Clients.All.SendAsync("CommentUpdated", result.Data);
+                await Clients.Group(commentDto.EventId.ToString()).SendAsync("CommentUpdated", result.Data);
             }
             else
             {
@@ -59,17 +75,40 @@ namespace Application.Hubs
             }
         }
 
-        public async Task DeleteComment(Guid commentID)
+        public async Task DeleteComment(Guid commentId)
         {
-            var result = await _mediator.Send(new DeleteCommentCommand(commentID));
+            var user = await FindUser();
+
+            var isAdmin = Context.User?.IsInRole("Admin");
+
+            var foundComment = await _mediator.Send(new GetCommentByIdQuery(commentId));
+            if (foundComment == null || (!isAdmin && foundComment.Data.UserId != Guid.Parse(user.Value)))
+            {
+                await Clients.Caller.SendAsync("Error", "You do not have permission to delete this foundComment.");
+                return;
+            }
+            var result = await _mediator.Send(new DeleteCommentCommand(commentId));
+
             if (result.Succeeded)
             {
-                await Clients.All.SendAsync("CommentDeleted", commentID);
+                await Clients.Group(commentId.ToString()).SendAsync("CommentDeleted", commentId);
             }
             else
             {
                 await Clients.Caller.SendAsync("Error", result.ErrorMessage);
             }
+        }
+
+        private async Task<Claim> FindUser()
+        {
+            var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                await Clients.Caller.SendAsync("Error", "User not authenticated.");
+                return null;
+            }
+            return userId;
         }
     }
 }
