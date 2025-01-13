@@ -19,7 +19,6 @@ namespace Application.Hubs
         private readonly IMediator _mediator;
         private readonly UserManager<User> _userManager;
         private readonly ILogger<CommentHub> _logger;
-
         public CommentHub(IMediator mediator, UserManager<User> userManager, ILogger<CommentHub> logger)
         {
             _mediator = mediator;
