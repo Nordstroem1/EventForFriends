@@ -19,8 +19,12 @@ namespace Domain.Models
         public DateTime EndDate { get; set; }
         public string? ImageUrl { get; set; }
         public bool IsclosedEvent { get; set; }
+        public string CreatedBy { get; set; }
+        public string Location { get; set; }
+        public List<User> LikeList { get; set; } = new List<User>();
+
         public Event(){}
-        public Event(Guid eventId, string eventName, string description, DateTime createdAt, DateTime startDate, DateTime endDate, string imageUrl, bool isclosedEvent)
+        public Event(Guid eventId, string eventName, string description, DateTime createdAt, DateTime startDate, DateTime endDate, string imageUrl, bool isclosedEvent, string createdBy,  string location)
         {
             EventId = eventId;
             EventName = eventName;
@@ -30,6 +34,8 @@ namespace Domain.Models
             EndDate = endDate;
             ImageUrl = imageUrl;
             IsclosedEvent = isclosedEvent;
+            CreatedBy = createdBy;
+            Location = location;
         }
     }
 }

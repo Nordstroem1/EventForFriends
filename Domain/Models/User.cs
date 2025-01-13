@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Models
@@ -7,16 +8,12 @@ namespace Domain.Models
     {
         public DateTime CreatedAt { get; set; }
         public List<Event> Events { get; set; }
-        public List<Message> Messages { get; set; }
+        public List<Comment> Comments{ get; set; }
         [NotMapped]
+        [Required(ErrorMessage = "Role is required")]
         public RoleEnums.Roles Role { get; set; }
 
-        public User()
-        {
-            Events = new List<Event>();
-            Messages = new List<Message>();
-        }
-        public User(Guid userId, string userName, string email, int phoneNumber, string password, DateTime createdAt, RoleEnums.Roles role, List<Event>? events, List<Message>? messages)
+        public User(Guid userId, string userName, string email, int phoneNumber, string password, DateTime createdAt, RoleEnums.Roles role)
         {
             Id = userId;
             UserName = userName;
@@ -24,11 +21,12 @@ namespace Domain.Models
             PhoneNumber = phoneNumber.ToString();
             PasswordHash = password; 
             CreatedAt = createdAt;
-            Events = events;
-            Messages = messages;
+            Events = new List<Event>();
+            Comments = new List<Comment>();
             LockoutEnabled = true;
             LockoutEnd = null;
             Role = role;
         }
+        public User() { }
     }
 }

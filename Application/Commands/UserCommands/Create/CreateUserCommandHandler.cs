@@ -1,51 +1,62 @@
 ﻿using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.UserCommands.Create
 {
     public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, OperationResult<User>>
     {
         private readonly UserManager<User> _userManager;
-        public CreateUserCommandHandler(UserManager<User> userManager)
+        private readonly ILogger<CreateUserCommandHandler> _logger;
+        public CreateUserCommandHandler(UserManager<User> userManager, ILogger<CreateUserCommandHandler> logger)
         {
             _userManager = userManager;
+            _logger = logger;
         }
         public async Task<OperationResult<User>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                User CreatedUser = new User
+                var createdUser = new User
                 {
                     Id = Guid.NewGuid(),
                     UserName = request.UserDto.UserName,
-                    PhoneNumber = request.UserDto.PhoneNumber.ToString(),
                     Email = request.UserDto.Email,
-                    Role = request.UserDto.Role,
+                    PhoneNumber = request.UserDto.PhoneNumber,
+                    PasswordHash = request.UserDto.Password,
                     CreatedAt = DateTime.UtcNow,
-                    Events = new List<Event>(),
-                    Messages = new List<Message>()
+                    Role = RoleEnums.Roles.user,
+                    Comments = new List<Comment>(),
+                    Events = new List<Event>()
                 };
 
-                var result = await _userManager.CreateAsync(CreatedUser, request.UserDto.Password);
+                var userPassword = await _userManager.CreateAsync(createdUser, request.UserDto.Password);
 
-                if (!result.Succeeded)
+                if (!userPassword.Succeeded)
                 {
-                    return OperationResult<User>.Fail("Failed to create user", "Application");
+                    var errors = string.Join(", ", userPassword.Errors.Select(e => e.Description));
+                    _logger.LogError($"Error when creating a user: {errors}");
+
+                    return OperationResult<User>.Fail($"Failed to create user: {errors}", "Application");
                 }
 
-                var roleResult = await _userManager.AddToRoleAsync(CreatedUser, request.UserDto.Role.ToString());
+                var roleResult = await _userManager.AddToRoleAsync(createdUser, createdUser.Role.ToString());
 
                 if (!roleResult.Succeeded)
                 {
-                    return OperationResult<User>.Fail("Failed to add role", "Application");
-                }
+                    var errors = string.Join(", ", userPassword.Errors.Select(e => e.Description));
+                    _logger.LogError($"Error when creating a user: {errors}");
 
-                return OperationResult<User>.Success(CreatedUser);
+                    return OperationResult<User>.Fail($"Failed to create user: {errors}", "Application");
+                }
+                _logger.LogInformation("User added successfully.");
+
+                return OperationResult<User>.Success(createdUser);
             }
             catch (Exception ex)
             {
-                throw new Exception("Unexpeted error." + ex.Message);
+                throw new Exception("Unexpected error." + ex.Message);
             }
         }
     }
