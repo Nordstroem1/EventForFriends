@@ -80,12 +80,19 @@ namespace Application.Hubs
 
             var isAdmin = Context.User?.IsInRole("Admin");
 
-            var foundComment = await _mediator.Send(new GetCommentByIdQuery(commentId));
-            if (foundComment == null || (!isAdmin && foundComment.Data.UserId != Guid.Parse(user.Value)))
+            if (isAdmin == false)
             {
-                await Clients.Caller.SendAsync("Error", "You do not have permission to delete this foundComment.");
+                await Clients.Caller.SendAsync("Error", "You do not have permission to delete this comment.");
                 return;
             }
+
+            var foundComment = await _mediator.Send(new GetCommentByIdQuery(commentId));
+            if (foundComment == null)
+            {
+                await Clients.Caller.SendAsync("Error", "Comment not found.");
+                return;
+            }
+
             var result = await _mediator.Send(new DeleteCommentCommand(commentId));
 
             if (result.Succeeded)
