@@ -8,8 +8,6 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using System.ComponentModel.Design;
 using System.Security.Claims;
 
 namespace Application.Hubs
@@ -40,25 +38,7 @@ namespace Application.Hubs
                 await Clients.Caller.SendAsync("Error", result.ErrorMessage);
             }
         }
-
-        public async Task GetCommentById(Guid commentId)
-        {
-            if (commentId == Guid.Empty)
-            {
-                await Clients.Caller.SendAsync("Error", "Invalid foundComment ID.");
-                return;
-            }
-
-            var result = await _mediator.Send(new GetCommentByIdQuery(commentId));
-            if (result.Succeeded)
-            {
-                await Clients.Caller.SendAsync("ReceiveComment", result.Data);
-            }
-            else
-            {
-                await Clients.Caller.SendAsync("Error", result.ErrorMessage);
-            }
-        }
+       
         public async Task UpdateComment(UpdateCommentDto commentDto,Guid commentId) 
         {
             await FindUser();
@@ -80,12 +60,19 @@ namespace Application.Hubs
 
             var isAdmin = Context.User?.IsInRole("Admin");
 
-            var foundComment = await _mediator.Send(new GetCommentByIdQuery(commentId));
-            if (foundComment == null || (!isAdmin && foundComment.Data.UserId != Guid.Parse(user.Value)))
+            if (isAdmin == false)
             {
-                await Clients.Caller.SendAsync("Error", "You do not have permission to delete this foundComment.");
+                await Clients.Caller.SendAsync("Error", "You do not have permission to delete this comment.");
                 return;
             }
+
+            var foundComment = await _mediator.Send(new GetCommentByIdQuery(commentId));
+            if (foundComment == null)
+            {
+                await Clients.Caller.SendAsync("Error", "Comment not found.");
+                return;
+            }
+
             var result = await _mediator.Send(new DeleteCommentCommand(commentId));
 
             if (result.Succeeded)

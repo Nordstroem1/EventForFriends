@@ -8,9 +8,9 @@ namespace Application.Dtos.User
         [Required]
         public Guid UserId { get; set; }
         [Required]
-        public RoleEnums.Roles Role { get; set; }
+        public string Role { get; set; }
 
-        public ChangeRoleDto(Guid userId, RoleEnums.Roles role)
+        public ChangeRoleDto(Guid userId, string role)
         {
             UserId = userId;
             Role = role;

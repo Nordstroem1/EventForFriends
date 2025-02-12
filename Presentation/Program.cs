@@ -1,6 +1,7 @@
 using Application.DependencyInjection;
+using Domain.Models;
+using Infrastructure.Databases;
 using Infrastructure.DepencyInjection;
-using Infrastructure.RoleInitializer;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,17 +9,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddApplicationLayer();
+builder.Services.AddApplicationLayer(builder.Configuration);
 builder.Services.AddInfrastructureLayer(builder.Configuration.GetConnectionString("DefaultConnection")!, builder.Configuration);
 
-var app = builder.Build();
+builder.Services.AddIdentity<User, IdentityRole>()
+                .AddEntityFrameworkStores<mySqlDb>()
+                .AddDefaultTokenProviders();
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-    await RoleInitializer.InitializeAsync(roleManager);
-}
+var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {

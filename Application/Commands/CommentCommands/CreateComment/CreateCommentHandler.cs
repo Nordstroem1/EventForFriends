@@ -9,11 +9,13 @@ namespace Application.Commands.CommentCommands.CreateComment
     public class CreateCommentHandler : IRequestHandler<CreateComment, OperationResult<Comment>>
     {
         private readonly IGenericRepository<Comment> _commentRepository;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IGenericRepository<Event> _eventRepository;
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<CreateCommentHandler> _logger;
-        public CreateCommentHandler(IGenericRepository<Comment> commentRepository, UserManager<IdentityUser> userManager, ILogger<CreateCommentHandler> logger)
+        public CreateCommentHandler(IGenericRepository<Comment> commentRepository,IGenericRepository<Event> eventrepository, UserManager<User> userManager, ILogger<CreateCommentHandler> logger)
         {
             _commentRepository = commentRepository;
+            _eventRepository = eventrepository;
             _userManager = userManager;
             _logger = logger;
         }
@@ -39,8 +41,9 @@ namespace Application.Commands.CommentCommands.CreateComment
                 {
                     CommentId = Guid.NewGuid(),
                     CommentContent = request.CommentDto.CommentContent,
-                    TimeSent = request.CommentDto.TimeSent,
-                    EventId = Guid.Parse(foundUser.Id),
+                    TimeSent = DateTime.Now,
+                    UserId = foundUser.Id,
+                    EventId = request.CommentDto.EventId,
                     Likes = 0
                 };
 

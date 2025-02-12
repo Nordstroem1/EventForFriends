@@ -8,10 +8,10 @@ namespace Application.Commands.EventCommands.CreateEvent
 {
     public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, OperationResult<Event>>
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<CreateEventCommandHandler> _logger;
         private readonly IGenericRepository<Event> _eventRepository;
-        public CreateEventCommandHandler(UserManager<IdentityUser> userManager, ILogger<CreateEventCommandHandler> logger)
+        public CreateEventCommandHandler(UserManager<User> userManager, ILogger<CreateEventCommandHandler> logger)
         {
             _userManager = userManager;
             _logger = logger;

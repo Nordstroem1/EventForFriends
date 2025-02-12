@@ -14,17 +14,13 @@ namespace Infrastructure.DepencyInjection
 {
     public static class DepencyInjection
     {
-        public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services, string connectionString,IConfiguration configuration)
+        public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services, string connectionString, IConfiguration configuration)
         {
             services.AddDbContext<mySqlDb>(options =>
             {
                 options.UseSqlServer(connectionString);
             });
 
-            services.AddIdentity<User, IdentityRole<Guid>>()
-                .AddEntityFrameworkStores<mySqlDb>()
-                .AddDefaultTokenProviders();
-            
             var jwtSettings = configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings["secret"];
 
@@ -48,10 +44,23 @@ namespace Infrastructure.DepencyInjection
 
             services.AddAuthorization(options =>
             {
+                options.AddPolicy("SuperAdmin", policy =>
+                {
+                    policy.AuthenticationSchemes.Add(IdentityConstants.ApplicationScheme);
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireRole("SuperAdmin");
+                });
                 options.AddPolicy("Admin", policy =>
                 {
-                    policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
+                    policy.AuthenticationSchemes.Add(IdentityConstants.ApplicationScheme);
                     policy.RequireAuthenticatedUser();
+                    policy.RequireRole("Admin");
+                });
+                options.AddPolicy("User", policy =>
+                {
+                    policy.AuthenticationSchemes.Add(IdentityConstants.ApplicationScheme);
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireRole("User");
                 });
             });
 
