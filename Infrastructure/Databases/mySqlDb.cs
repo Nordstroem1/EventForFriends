@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Databases
 {
-    public class mySqlDb : IdentityDbContext<User, IdentityRole<Guid>, Guid>
+    public class mySqlDb : IdentityDbContext<User, IdentityRole, string>
     {
         public mySqlDb(DbContextOptions<mySqlDb> options) : base(options) { }
         public DbSet<User> Users { get; set; }

@@ -20,12 +20,13 @@ namespace Application.Queries.Login
         public async Task<OperationResult<string>> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
             User foundUser = null;
+            foundUser = await LoginWithUsernameOrEmail(request, foundUser);
 
-            foundUser = await LoginWithUsernameOrEmail  (request, foundUser);
+            var authenticationResult = _tokenHelper.AuthenticateUser(foundUser.Id);
 
-            if (foundUser == null)
+            if(!authenticationResult.IsCompletedSuccessfully || foundUser == null)
             {
-                return OperationResult<string>.Fail("User was null", "Application");
+                return OperationResult<string>.Fail("User not found", "Application");
             }
 
             if (await IsUserLockedOut(foundUser))
@@ -46,7 +47,7 @@ namespace Application.Queries.Login
             }
 
             await _userManager.ResetAccessFailedCountAsync(foundUser);
-            var token = _tokenHelper.GenerateToken(foundUser);
+            var token = await _tokenHelper.GenerateToken(foundUser);
 
             return OperationResult<string>.Success(token);
         }

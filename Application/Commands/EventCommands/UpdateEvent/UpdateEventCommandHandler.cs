@@ -11,8 +11,8 @@ namespace Application.Commands.EventCommands.UpdateEvent
     {
         private readonly IGenericRepository<Event> _eventRepository;   
         private readonly ILogger<UpdateEventCommandHandler> _logger;
-        private readonly UserManager<IdentityUser> _userManager;
-        public UpdateEventCommandHandler(IGenericRepository<Event> eventRepository, ILogger<UpdateEventCommandHandler> logger, UserManager<IdentityUser> userManager)
+        private readonly UserManager<User> _userManager;
+        public UpdateEventCommandHandler(IGenericRepository<Event> eventRepository, ILogger<UpdateEventCommandHandler> logger, UserManager<User> userManager)
         {
             _eventRepository = eventRepository;
             _logger = logger;

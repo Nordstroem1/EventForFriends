@@ -8,8 +8,6 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using System.ComponentModel.Design;
 using System.Security.Claims;
 
 namespace Application.Hubs
@@ -40,25 +38,7 @@ namespace Application.Hubs
                 await Clients.Caller.SendAsync("Error", result.ErrorMessage);
             }
         }
-
-        public async Task GetCommentById(Guid commentId)
-        {
-            if (commentId == Guid.Empty)
-            {
-                await Clients.Caller.SendAsync("Error", "Invalid foundComment ID.");
-                return;
-            }
-
-            var result = await _mediator.Send(new GetCommentByIdQuery(commentId));
-            if (result.Succeeded)
-            {
-                await Clients.Caller.SendAsync("ReceiveComment", result.Data);
-            }
-            else
-            {
-                await Clients.Caller.SendAsync("Error", result.ErrorMessage);
-            }
-        }
+       
         public async Task UpdateComment(UpdateCommentDto commentDto,Guid commentId) 
         {
             await FindUser();

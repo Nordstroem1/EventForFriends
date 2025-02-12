@@ -14,14 +14,14 @@ namespace Application.Dtos.User
         [Required]
         public int PhoneNumber { get; set; }
         [Required]
-        public RoleEnums.Roles Role { get; set; }
-        public UpdateUserDto(Guid id, string userName, string email, string password, int phoneNumber, RoleEnums.Roles roleEnums)
+        public string Role { get; set; }
+        public UpdateUserDto(Guid id, string userName, string email, string password, int phoneNumber, string role)
         {
             UserName = userName;
             Email = email;
             Password = password;
             PhoneNumber = phoneNumber;
-            Role = RoleEnums.Roles.user;
+            Role = role;
         }
     }
 }

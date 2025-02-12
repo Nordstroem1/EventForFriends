@@ -21,7 +21,7 @@ namespace Infrastructure.DepencyInjection
                 options.UseSqlServer(connectionString);
             });
 
-            services.AddIdentity<User, IdentityRole<Guid>>()
+            services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<mySqlDb>()
                 .AddDefaultTokenProviders();
             
