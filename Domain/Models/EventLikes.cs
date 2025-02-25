@@ -1,6 +1,6 @@
-﻿namespace Application.Dtos.Event
+﻿namespace Domain.Models
 {
-    public class LikeEventDto
+    public class EventLikes
     {
         public Guid EventId { get; set; }
         public Guid UserId { get; set; }

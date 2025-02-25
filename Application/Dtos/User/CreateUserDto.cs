@@ -16,12 +16,14 @@ namespace Application.Dtos.User
         [Phone]
         [Required(ErrorMessage = "Phonenumber is required")]
         public string PhoneNumber { get; set; }
-        public CreateUserDto(string userName, string email, string password, string phoneNumber)
+        public string Role { get; set; } 
+        public CreateUserDto(string userName, string email, string password, string phoneNumber, string role)
         {
             UserName = userName;
             Email = email;
             Password = password;
             PhoneNumber = phoneNumber;
+            Role = role;
         }
     }
 }

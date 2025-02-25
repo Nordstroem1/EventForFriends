@@ -15,7 +15,7 @@ namespace Application.DependencyInjection
         public static IServiceCollection AddApplicationLayer(this IServiceCollection services,IConfiguration configuration)
         {
             var assembly = typeof(ApplicationDependencyInjection).Assembly;
-
+            services.AddAutoMapper(assembly);
             services.AddMediatR(config => config.RegisterServicesFromAssemblies(assembly));
             services.AddScoped<TokenHelper>();
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
