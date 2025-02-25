@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces;
+﻿using AutoMapper;
+using Domain.Interfaces;
 using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -12,12 +13,14 @@ namespace Application.Commands.CommentCommands.CreateComment
         private readonly IGenericRepository<Event> _eventRepository;
         private readonly UserManager<User> _userManager;
         private readonly ILogger<CreateCommentHandler> _logger;
-        public CreateCommentHandler(IGenericRepository<Comment> commentRepository,IGenericRepository<Event> eventrepository, UserManager<User> userManager, ILogger<CreateCommentHandler> logger)
+        private readonly IMapper _mapper;
+        public CreateCommentHandler(IGenericRepository<Comment> commentRepository,IGenericRepository<Event> eventrepository, UserManager<User> userManager, ILogger<CreateCommentHandler> logger, IMapper mapper)
         {
             _commentRepository = commentRepository;
             _eventRepository = eventrepository;
             _userManager = userManager;
             _logger = logger;
+            _mapper = mapper;
         }
         public async Task<OperationResult<Comment>> Handle(CreateComment request, CancellationToken cancellationToken)
         {
@@ -36,6 +39,7 @@ namespace Application.Commands.CommentCommands.CreateComment
                     _logger.LogError("User not found");
                     return OperationResult<Comment>.Fail("User not found", "Applicaton");
                 }
+
 
                 var newComment = new Comment
                 {

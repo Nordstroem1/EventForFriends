@@ -15,18 +15,18 @@ namespace Application.Hubs
     public class CommentHub : Hub
     {
         private readonly IMediator _mediator;
-        private readonly UserManager<User> _userManager;
         private readonly ILogger<CommentHub> _logger;
-        public CommentHub(IMediator mediator, UserManager<User> userManager, ILogger<CommentHub> logger)
+        private readonly UserManager<User> _userManager;   
+        public CommentHub(IMediator mediator, ILogger<CommentHub> logger, UserManager<User> userManager)
         {
             _mediator = mediator;
-            _userManager = userManager;
             _logger = logger;
+            _userManager = userManager;
         }
+
         public async Task CreateComment(CreateCommentDto commentdto,Guid UserId)
         {
-            await FindUser();
-
+            var user = await FindUser();
             var result = await _mediator.Send(new CreateComment(commentdto, UserId));
             
             if (result.Succeeded)
@@ -35,13 +35,14 @@ namespace Application.Hubs
             }
             else
             {
+                _logger.LogError(result.ErrorMessage);
                 await Clients.Caller.SendAsync("Error", result.ErrorMessage);
             }
         }
        
         public async Task UpdateComment(UpdateCommentDto commentDto,Guid commentId) 
         {
-            await FindUser();
+            var user = await FindUser();
 
             var result = await _mediator.Send(new UpdateCommentCommand(commentId, commentDto));
             if (result.Succeeded)
@@ -50,6 +51,7 @@ namespace Application.Hubs
             }
             else
             {
+                _logger.LogError(result.ErrorMessage);
                 await Clients.Caller.SendAsync("Error", result.ErrorMessage);
             }
         }
@@ -58,43 +60,54 @@ namespace Application.Hubs
         {
             var user = await FindUser();
 
-            var isAdmin = Context.User?.IsInRole("Admin");
 
-            if (isAdmin == false)
+            var foundComment = await _mediator.Send(new GetCommentByIdQuery(commentId));
+            if(user.Role != "Admin"|| foundComment.Data.UserId == user.Id)
             {
                 await Clients.Caller.SendAsync("Error", "You do not have permission to delete this comment.");
                 return;
             }
-
-            var foundComment = await _mediator.Send(new GetCommentByIdQuery(commentId));
             if (foundComment == null)
             {
+                _logger.LogError(foundComment.ErrorMessage);
                 await Clients.Caller.SendAsync("Error", "Comment not found.");
                 return;
             }
+            if (user.Role != "Admin" && foundComment.Data.UserId != user.Id)
+            {
+                await Clients.Caller.SendAsync("Error", "You do not have permission to delete this comment.");
+                return; // Stop execution if user is not an admin or the owner of the comment
+            }
 
             var result = await _mediator.Send(new DeleteCommentCommand(commentId));
-
             if (result.Succeeded)
             {
-                await Clients.Group(commentId.ToString()).SendAsync("CommentDeleted", commentId);
+                await Clients.Group(foundComment.Data.EventId.ToString()).SendAsync("CommentDeleted", commentId);
             }
             else
             {
+                _logger.LogError(result.ErrorMessage);  
                 await Clients.Caller.SendAsync("Error", result.ErrorMessage);
             }
         }
 
-        private async Task<Claim> FindUser()
+        private async Task<User> FindUser()
         {
             var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier);
-
             if (userId == null)
             {
                 await Clients.Caller.SendAsync("Error", "User not authenticated.");
                 return null;
             }
-            return userId;
+
+            var user = await _userManager.FindByIdAsync(userId.Value);
+            if (user == null)
+            {
+                await Clients.Caller.SendAsync("Error", "User not found.");
+                return null;
+            }
+
+            return user;
         }
     }
 }

@@ -25,7 +25,7 @@ namespace Presentation.Controllers
             _mediator = mediator;
         }
 
-        [HttpPost("createUser")]
+        [HttpPost("CreateUser")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDto user)
         {
             if (!ModelState.IsValid)
@@ -108,7 +108,7 @@ namespace Presentation.Controllers
 
             return Ok(new { result.Succeeded, result.Data });
         }
-        [HttpGet]
+        [HttpGet("GetAllUsers")]
         public async Task<IActionResult> GetAllUsers()
         {
             var result = await _mediator.Send(new GetAllUserQuery());
@@ -122,7 +122,7 @@ namespace Presentation.Controllers
             return Ok(new { result.Succeeded, result.Data });
         }
 
-        [HttpPost("login")]
+        [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
             if (!ModelState.IsValid)
@@ -140,7 +140,7 @@ namespace Presentation.Controllers
 
             return Ok(new { result.Succeeded, result.Data });
         }
-        [HttpPut("Change role")]
+        [HttpPut("ChangeRole")]
         public async Task<IActionResult> ChangeRole([FromBody] ChangeRoleDto changeRoleDto)
         {
             if (!ModelState.IsValid)

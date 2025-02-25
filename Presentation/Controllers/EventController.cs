@@ -1,6 +1,7 @@
 ﻿using Application.Commands.EventCommands.CreateEvent;
 using Application.Commands.EventCommands.DeleteEvent;
 using Application.Commands.EventCommands.LikeEvent;
+using Application.Commands.EventCommands.LikesEvent;
 using Application.Commands.EventCommands.UpdateEvent;
 using Application.Dtos.Event;
 using Domain.Models;
@@ -127,7 +128,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost("likeEvent")]
-        public async Task<IActionResult> LikeEvent([FromBody]LikeEventDto likeEventDto)
+        public async Task<IActionResult> LikeEvent([FromBody]EventLikes likeEventDto)
         {
             if (!ModelState.IsValid)
             {

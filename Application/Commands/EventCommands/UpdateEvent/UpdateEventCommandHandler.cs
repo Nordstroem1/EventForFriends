@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.Event;
+using AutoMapper;
 using Domain.Interfaces;
 using Domain.Models;
 using MediatR;
@@ -12,17 +13,18 @@ namespace Application.Commands.EventCommands.UpdateEvent
         private readonly IGenericRepository<Event> _eventRepository;   
         private readonly ILogger<UpdateEventCommandHandler> _logger;
         private readonly UserManager<User> _userManager;
-        public UpdateEventCommandHandler(IGenericRepository<Event> eventRepository, ILogger<UpdateEventCommandHandler> logger, UserManager<User> userManager)
+        private readonly IMapper _mapper;
+        public UpdateEventCommandHandler(IGenericRepository<Event> eventRepository, ILogger<UpdateEventCommandHandler> logger, UserManager<User> userManager, IMapper mapper)
         {
             _eventRepository = eventRepository;
             _logger = logger;
             _userManager = userManager;
+            _mapper = mapper;
         }
         public async Task<OperationResult<UpdateEventDto>> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
         {
             try
             {
-
                 if (request.UpdateEventDto == null)
                 {
                     _logger.LogError("Event data is required");
@@ -43,16 +45,11 @@ namespace Application.Commands.EventCommands.UpdateEvent
                     return OperationResult<UpdateEventDto>.Fail("Event not found", "Applicaton");
                 }
 
-                foundEvent.EventName = request.UpdateEventDto.EventName;
-                foundEvent.Description = request.UpdateEventDto.Description;
-                foundEvent.Location = request.UpdateEventDto.Location;
-                foundEvent.StartDate = request.UpdateEventDto.StartDate;
-                foundEvent.EndDate = request.UpdateEventDto.EndDate;
-                foundEvent.IsclosedEvent = request.UpdateEventDto.IsclosedEvent;
+                var updatedEvent = _mapper.Map<UpdateEventDto>(request.UpdateEventDto);
                 await _eventRepository.UpdateAsync(foundEvent);
                 _logger.LogInformation("Event updated successfully");
 
-                return OperationResult<UpdateEventDto>.Success(request.UpdateEventDto);
+                return OperationResult<UpdateEventDto>.Success(updatedEvent);
             }
             catch
             {
