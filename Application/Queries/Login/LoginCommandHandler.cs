@@ -22,6 +22,11 @@ namespace Application.Queries.Login
             User foundUser = null;
             foundUser = await LoginWithUsernameOrEmail(request, foundUser);
 
+            if(foundUser == null)
+            {
+                return OperationResult<string>.Fail("User not found", "Application");
+            }
+
             var authenticationResult = _tokenHelper.AuthenticateUser(foundUser.Id);
 
             if(!authenticationResult.IsCompletedSuccessfully || foundUser == null)

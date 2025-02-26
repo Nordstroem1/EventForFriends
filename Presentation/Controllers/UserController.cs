@@ -9,6 +9,7 @@ using Application.Queries.Login;
 using Application.Dtos.User;
 using Application.Queries.UserQueries.GetAllUsers;
 using Application.Commands.UserCommands.ChangeRole;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Presentation.Controllers
 {
@@ -24,7 +25,7 @@ namespace Presentation.Controllers
             _logger = logger;
             _mediator = mediator;
         }
-
+        [AllowAnonymous]
         [HttpPost("CreateUser")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDto user)
         {
@@ -51,6 +52,7 @@ namespace Presentation.Controllers
             }
         }
 
+        [Authorize(Roles = "User,Admin,SuperAdmin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
@@ -70,6 +72,8 @@ namespace Presentation.Controllers
 
             return Ok(new { result.Succeeded, result.Data });
         }
+
+        [Authorize(Roles = "User,Admin,SuperAdmin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(Guid id, UpdateUserDto updatedUser)
         {
@@ -89,6 +93,7 @@ namespace Presentation.Controllers
             return Ok(new { result.Succeeded, result.Data });
         }
 
+        [Authorize(Roles = "User,Admin,SuperAdmin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(Guid id)
         {
@@ -108,6 +113,8 @@ namespace Presentation.Controllers
 
             return Ok(new { result.Succeeded, result.Data });
         }
+
+        [Authorize(Roles = "User,Admin,SuperAdmin")]
         [HttpGet("GetAllUsers")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -122,6 +129,7 @@ namespace Presentation.Controllers
             return Ok(new { result.Succeeded, result.Data });
         }
 
+        [AllowAnonymous]
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
@@ -140,6 +148,8 @@ namespace Presentation.Controllers
 
             return Ok(new { result.Succeeded, result.Data });
         }
+
+        [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpPut("ChangeRole")]
         public async Task<IActionResult> ChangeRole([FromBody] ChangeRoleDto changeRoleDto)
         {
