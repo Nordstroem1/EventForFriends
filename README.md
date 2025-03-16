@@ -18,6 +18,7 @@ Welcome to **Event Manager**! This project is a platform where my friends and I 
 - **Generic Repository Pattern**: Simplifies data access logic.
 
 ### Frontend
+(Yet to come)
 - **HTML5**, **CSS3**, **JavaScript**: Crafting the user interface.
 
 ## Contributions 🤝
