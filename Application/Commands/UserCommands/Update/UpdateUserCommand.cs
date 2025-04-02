@@ -4,15 +4,5 @@ using MediatR;
 
 namespace Application.Commands.UserCommands.Update
 {
-    public class UpdateUserCommand : IRequest<OperationResult<User>>
-    {
-        public Guid UserId { get; set; }
-        public UpdateUserDto UpdatedUser { get; set; }
-
-        public UpdateUserCommand(Guid userId, UpdateUserDto updatedUser)
-        {
-            UserId = userId;
-            UpdatedUser = updatedUser;
-        }
-    }
+    public sealed record UpdateUserCommand(string LoggedInUser,string UserId, UpdateUserDto UpdatedUser) : IRequest<OperationResult<User>>;
 }

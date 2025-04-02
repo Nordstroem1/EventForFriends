@@ -6,9 +6,9 @@ namespace Application.Commands.CommentCommands.UpdateComment
 {
     public class UpdateCommentCommand : IRequest<OperationResult<UpdateCommentDto>>
     {
-        public Guid CommentId { get; set; }
+        public string CommentId { get; set; }
         public UpdateCommentDto UpdateCommentDto { get; set; }
-        public UpdateCommentCommand(Guid commentId, UpdateCommentDto updateCommentDto)
+        public UpdateCommentCommand(string commentId, UpdateCommentDto updateCommentDto)
         {
             CommentId = commentId;
             UpdateCommentDto = updateCommentDto;

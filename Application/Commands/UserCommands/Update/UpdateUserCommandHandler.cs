@@ -29,14 +29,18 @@ namespace Application.Commands.UserCommands.Update
                    
                     return OperationResult<User>.Fail("User is null", "Application");
                 }
-
+                var loggedInUser = await _userManager.FindByIdAsync(request.LoggedInUser);
                 var foundUser = await _userManager.FindByIdAsync(request.UserId.ToString());
 
                 if (foundUser == null)
                 {
                     _logger.LogError("User not found");
-                    
                     return OperationResult<User>.Fail("User not found", "Application");
+                }
+                if(loggedInUser == null)
+                {
+                    _logger.LogError("Logged in user not found");
+                    return OperationResult<User>.Fail("Logged in user not found", "Application");
                 }
 
                 _mapper.Map(request.UpdatedUser, foundUser);

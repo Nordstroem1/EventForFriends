@@ -19,57 +19,57 @@ namespace Application.Queries.Login
         }
         public async Task<OperationResult<string>> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
-            User foundUser = null;
-            foundUser = await LoginWithUsernameOrEmail(request, foundUser);
-
-            if(foundUser == null)
+            try
             {
-                return OperationResult<string>.Fail("User not found", "Application");
-            }
 
-            var authenticationResult = _tokenHelper.AuthenticateUser(foundUser.Id);
+                var foundUser = await LoginWithUsernameOrEmail(request);
 
-            if(!authenticationResult.IsCompletedSuccessfully || foundUser == null)
-            {
-                return OperationResult<string>.Fail("User not found", "Application");
-            }
+                var authenticationResult = _tokenHelper.AuthenticateUser(foundUser.Id);
 
-            if (await IsUserLockedOut(foundUser))
-            {
-                return OperationResult<string>.Fail("User is locked out", "Application");
-            }
-
-            var result = await _signInManager.CheckPasswordSignInAsync(foundUser, request.LoginDto.Password, true);
-
-            if (!result.Succeeded)
-            {
-                if (result.IsLockedOut)
+                if (!authenticationResult.IsCompletedSuccessfully || foundUser == null)
                 {
-                    return OperationResult<string>.Fail("User is locked out due to too many failed attempts", "Application");
+                    return OperationResult<string>.Fail("User not found", "Application");
                 }
 
-                return OperationResult<string>.Fail("Invalid password", "Application");
+                if (await IsUserLockedOut(foundUser))
+                {
+                    return OperationResult<string>.Fail("User is locked out", "Application");
+                }
+
+                var result = await _signInManager.CheckPasswordSignInAsync(foundUser, request.LoginDto.Password, true);
+
+                if (!result.Succeeded)
+                {
+                    if (result.IsLockedOut)
+                    {
+                        return OperationResult<string>.Fail("User is locked out due to too many failed attempts", "Application");
+                    }
+
+                    return OperationResult<string>.Fail("Invalid password", "Application");
+                }
+
+                await _userManager.ResetAccessFailedCountAsync(foundUser);
+                var token = await _tokenHelper.GenerateToken(foundUser);
+
+                return OperationResult<string>.Success(token);
             }
-
-            await _userManager.ResetAccessFailedCountAsync(foundUser);
-            var token = await _tokenHelper.GenerateToken(foundUser);
-
-            return OperationResult<string>.Success(token);
+            catch (Exception ex)
+            {
+                return OperationResult<string>.Fail(ex.Message, "Application");
+            }
         }
 
-        private async Task<User> LoginWithUsernameOrEmail(LoginCommand request, User foundUser)
+        private async Task<User> LoginWithUsernameOrEmail(LoginCommand request)
         {
-            if (request.LoginDto.Email == null)
+            User foundUser = null;
+
+            if (request.LoginDto.Email != null)
             {
                 foundUser = await _userManager.FindByNameAsync(request.LoginDto.UserName);
             }
-            else if (request.LoginDto.UserName == null)
+            else if (request.LoginDto.UserName != null)
             {
                 foundUser = await _userManager.FindByEmailAsync(request.LoginDto.Email);
-            }
-            else
-            {
-                return null;
             }
 
             return foundUser;

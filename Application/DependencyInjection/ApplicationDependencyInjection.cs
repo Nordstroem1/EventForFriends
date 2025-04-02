@@ -2,11 +2,9 @@
 using Application.Token;
 using Domain.Interfaces;
 using Infrastructure.Data;
-using Domain.Models;
-using Infrastructure.Databases;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Identity;
+using Application.Interfaces;
+using Application.Services;
 
 namespace Application.DependencyInjection
 {
@@ -19,8 +17,8 @@ namespace Application.DependencyInjection
             services.AddMediatR(config => config.RegisterServicesFromAssemblies(assembly));
             services.AddScoped<TokenHelper>();
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<IGetUser, GetUser>();
             services.AddSignalR();
-
             return services;
         }
     }

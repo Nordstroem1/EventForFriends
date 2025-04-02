@@ -2,6 +2,7 @@
 using Domain.Models;
 using Infrastructure.Data;
 using Infrastructure.Databases;
+using Infrastructure.Seeder;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -44,30 +45,44 @@ namespace Infrastructure.DepencyInjection
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("SuperAdmin", policy =>
+                options.AddPolicy("superAdmin", policy =>
                 {
                     policy.AuthenticationSchemes.Add(IdentityConstants.ApplicationScheme);
                     policy.RequireAuthenticatedUser();
-                    policy.RequireRole("SuperAdmin");
+                    policy.RequireRole("superadmin");
                 });
-                options.AddPolicy("Admin", policy =>
+                options.AddPolicy("admin", policy =>
                 {
                     policy.AuthenticationSchemes.Add(IdentityConstants.ApplicationScheme);
                     policy.RequireAuthenticatedUser();
-                    policy.RequireRole("Admin");
+                    policy.RequireRole("admin");
                 });
-                options.AddPolicy("User", policy =>
+                options.AddPolicy("user", policy =>
                 {
                     policy.AuthenticationSchemes.Add(IdentityConstants.ApplicationScheme);
                     policy.RequireAuthenticatedUser();
-                    policy.RequireRole("User");
+                    policy.RequireRole("user");
                 });
             });
 
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IGenericRepository<User>, GenericRepository<User>>();
+            services.AddSingleton<RoleSeeder>();
 
             return services;
+        }
+        public static async Task SeedRoles(IServiceProvider serviceProvider)
+        {
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            string[] roleNames = { "superadmin", "admin", "user" };
+
+            foreach (var roleName in roleNames)
+            {
+                if (!await roleManager.RoleExistsAsync(roleName))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(roleName));
+                }
+            }
         }
     }
 }

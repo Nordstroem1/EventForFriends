@@ -17,9 +17,9 @@ namespace Application.Token
             _configuration = configuration;
             _userManager = userManager;
         }
-        public async Task<IdentityResult> AuthenticateUser(Guid userId)
+        public async Task<IdentityResult> AuthenticateUser(string userId)
         {
-            var user = _userManager.FindByIdAsync(userId.ToString());
+            var user = _userManager.FindByIdAsync(userId);
 
             if(user == null)
             {
@@ -33,9 +33,9 @@ namespace Application.Token
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Role, user.Role)
+                new Claim("UserName", user.UserName),
+                new Claim("UserId", user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role),
             };
 
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -47,6 +47,7 @@ namespace Application.Token
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
+
 
             return tokenHandler.WriteToken(token);
         }

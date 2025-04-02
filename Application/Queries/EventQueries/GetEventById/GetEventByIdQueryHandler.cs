@@ -16,7 +16,7 @@ namespace Application.Queries.EventQueries.GetEventById
         }
         public async Task<OperationResult<Event>> Handle(GetEventbyIdQuery request, CancellationToken cancellationToken)
         {
-            if (request.EventId == Guid.Empty || request == null)
+            if (request.EventId == string.Empty || request == null)
             {
                 _logger.LogError("No id was given");
                 return OperationResult<Event>.Fail("No id was given", "Application");

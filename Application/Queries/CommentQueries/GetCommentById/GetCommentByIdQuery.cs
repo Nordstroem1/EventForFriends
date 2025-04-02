@@ -5,8 +5,8 @@ namespace Application.Queries.CommentQueries.GetCommentById
 {
     public class GetCommentByIdQuery : IRequest<OperationResult<Comment>>
     {
-        public Guid CommentId { get; set; }
-        public GetCommentByIdQuery(Guid commentId)
+        public string CommentId { get; set; }
+        public GetCommentByIdQuery(string commentId)
         {
             CommentId = commentId;
         }

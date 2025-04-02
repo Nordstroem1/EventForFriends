@@ -4,15 +4,13 @@ namespace Domain.Models
 {
     public class User : IdentityUser
     {
-        public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }
         public List<Event> Events { get; set; }
         public List<Comment> Comments{ get; set; }
         public string Role { get; set; }
 
-        public User(Guid userId, string userName, string email, int phoneNumber, string password, DateTime createdAt, string role)
+        public User(string userName, string email, int phoneNumber, string password, DateTime createdAt, string role)
         {
-            Id = userId;
             UserName = userName;
             Email = email;
             PhoneNumber = phoneNumber.ToString();
@@ -22,8 +20,6 @@ namespace Domain.Models
             LockoutEnabled = true;
             LockoutEnd = null;
             Role = role;
-            var passwordHasher = new PasswordHasher<User>();
-            PasswordHash = passwordHasher.HashPassword(this, password);
         }
         public User() { }
     }

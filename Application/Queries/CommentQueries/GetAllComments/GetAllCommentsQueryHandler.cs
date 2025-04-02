@@ -20,7 +20,7 @@ namespace Application.Queries.CommentQueries.GetAllComments
         {
             try
             {
-                if (request.EventId == Guid.Empty)
+                if (request.EventId == string.Empty)
                 {
                     _logger.LogError("EventId can't be null");
                     return OperationResult<List<Comment>>.Fail("EventId can't be null", "Application");
