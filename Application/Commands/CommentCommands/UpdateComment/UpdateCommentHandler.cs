@@ -20,7 +20,7 @@ namespace Application.Commands.CommentCommands.UpdateComment
         {
             try
             {
-                if (request.CommentId == null || request.CommentId == Guid.Empty)
+                if (request.CommentId == null || request.CommentId == string.Empty)
                 {
                     _logger.LogError("Comment not found");
                     return OperationResult<UpdateCommentDto>.Fail("Comment not found", "Application");

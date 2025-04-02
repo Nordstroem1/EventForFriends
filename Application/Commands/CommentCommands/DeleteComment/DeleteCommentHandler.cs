@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.CommentCommands.DeleteComment
 {
-    public class DeleteCommentHandler : IRequestHandler<DeleteCommentCommand, OperationResult<Guid>>
+    public class DeleteCommentHandler : IRequestHandler<DeleteCommentCommand, OperationResult<string>>
     {
         private readonly IGenericRepository<Comment> _commentRepository;
         private readonly ILogger<DeleteCommentHandler> _logger;
@@ -14,14 +14,14 @@ namespace Application.Commands.CommentCommands.DeleteComment
             _commentRepository = commentRepository;
             _logger = logger;
         }
-        public async Task<OperationResult<Guid>> Handle(DeleteCommentCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<string>> Handle(DeleteCommentCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                if (request.CommentId == null || request.CommentId == Guid.Empty)
+                if (request.CommentId == null || request.CommentId == string.Empty)
                 {
                     _logger.LogError("Comment not found");
-                    return OperationResult<Guid>.Fail("Comment not found", "Applicaton");
+                    return OperationResult<string>.Fail("Comment not found", "Applicaton");
                 }
 
                 var foundComment = await _commentRepository.GetByIdAsync(request.CommentId);
@@ -29,23 +29,23 @@ namespace Application.Commands.CommentCommands.DeleteComment
                 if (foundComment == null)
                 {
                     _logger.LogError("Could not find given comment.");
-                    return OperationResult<Guid>.Fail("Could not find given comment.", "Application");
+                    return OperationResult<string>.Fail("Could not find given comment.", "Application");
                 }
                 var result = await _commentRepository.DeleteAsync(foundComment);
 
                 if (result != null)
                 {
                     _logger.LogError("Could not delete comment.");
-                    return OperationResult<Guid>.Fail("Could not delete comment.", "Application");
+                    return OperationResult<string>.Fail("Could not delete comment.", "Application");
                 }
                 _logger.LogInformation("Successfully deleted comment.");
 
-                return OperationResult<Guid>.Success(request.CommentId);
+                return OperationResult<string>.Success(request.CommentId);
             }
             catch
             {
                 _logger.LogError("Unexpected error");
-                return OperationResult<Guid>.Fail("Unexpected error", "Applicaton");
+                return OperationResult<string>.Fail("Unexpected error", "Applicaton");
             }
         }
     }

@@ -25,19 +25,25 @@ namespace Application.Commands.UserCommands.Create
             {
                 var createdUser = _mapper.Map<User>(request.UserDto);
 
-                if(!await _roleManager.RoleExistsAsync("User"))
+                if (createdUser.Role != "user" || string.IsNullOrEmpty(createdUser.Role))
                 {
-                    var roleResult = await _roleManager.CreateAsync(new IdentityRole(createdUser.Role));
+                    createdUser.Role = "user";
+                }
 
-                    if (!roleResult.Succeeded)
+                if(!await _roleManager.RoleExistsAsync(createdUser.Role))
+                {
+                    var createRoleResult = await _roleManager.CreateAsync(new IdentityRole(createdUser.Role));
+
+                    if (!createRoleResult.Succeeded)
                     {
                         _logger.LogError($"Error when creating a user role: ");
 
                         return OperationResult<User>.Fail($"Failed to create user role: ", "Application");
                     }
                 }
+
                 var userResult = await _userManager.CreateAsync(createdUser, request.UserDto.Password);
-                await _userManager.AddToRoleAsync(createdUser, createdUser.Role);
+                await _userManager.UpdateAsync(createdUser); 
 
                 if (!userResult.Succeeded)
                 {
@@ -45,6 +51,15 @@ namespace Application.Commands.UserCommands.Create
                     _logger.LogError($"Error when creating a user: {errors}");
 
                     return OperationResult<User>.Fail($"Failed to create user: {errors}", "Application");
+                }
+
+                var roleResult = await _userManager.AddToRoleAsync(createdUser, createdUser.Role);
+
+                if (!roleResult.Succeeded)
+                {
+                    var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+                    _logger.LogError($"Error when adding user to role: {errors}");
+                    return OperationResult<User>.Fail($"Failed to add user to role: {errors}", "Application");
                 }
 
                 return OperationResult<User>.Success(createdUser);

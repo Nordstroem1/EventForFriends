@@ -5,8 +5,8 @@ namespace Application.Queries.CommentQueries.GetAllComments
 {
     public class GetAllCommentsQuery : IRequest<OperationResult<List<Comment>>>
     {
-        public Guid EventId { get; set; }
-        public GetAllCommentsQuery(Guid eventId)
+        public string EventId { get; set; }
+        public GetAllCommentsQuery(string eventId)
         {
             EventId = eventId;
         }

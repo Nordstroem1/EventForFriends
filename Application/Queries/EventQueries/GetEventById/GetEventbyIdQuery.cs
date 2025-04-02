@@ -5,8 +5,8 @@ namespace Application.Queries.EventQueries.GetEventById
 {
     public class GetEventbyIdQuery : IRequest<OperationResult<Event>>
     {
-        public Guid EventId { get; set; }
-        public GetEventbyIdQuery(Guid eventId)
+        public string EventId { get; set; }
+        public GetEventbyIdQuery(string eventId)
         {
             EventId = eventId;
         }

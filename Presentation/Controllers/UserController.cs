@@ -10,6 +10,7 @@ using Application.Dtos.User;
 using Application.Queries.UserQueries.GetAllUsers;
 using Application.Commands.UserCommands.ChangeRole;
 using Microsoft.AspNetCore.Authorization;
+using Application.Interfaces;
 
 namespace Presentation.Controllers
 {
@@ -19,22 +20,25 @@ namespace Presentation.Controllers
     {
         private readonly IMediator _mediator;
         private readonly ILogger<UserController> _logger;
+        private readonly IGetUser _getUserService;
 
-        public UserController(IMediator mediator, ILogger<UserController> logger)
+        public UserController(IMediator mediator, ILogger<UserController> logger, IGetUser getUserService)
         {
             _logger = logger;
             _mediator = mediator;
+            _getUserService = getUserService;
         }
+
         [AllowAnonymous]
         [HttpPost("CreateUser")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDto user)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
                 var result = await _mediator.Send(new CreateUserCommand(user));
 
                 if (result == null || !result.Succeeded)
@@ -54,35 +58,47 @@ namespace Presentation.Controllers
 
         [Authorize(Roles = "User,Admin,SuperAdmin")]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(Guid id)
+        public async Task<IActionResult> DeleteUser(string id)
         {
-            if (id == Guid.Empty)
+            try
             {
-                _logger.LogError("Invalid user id");
-                return BadRequest("Invalid user id");
+                if (string.IsNullOrEmpty(id))
+                {
+                    _logger.LogError("Invalid user id");
+                    return BadRequest("Invalid user id");
+                }
+
+                var loggedInUser = _getUserService.GetUserIdFromClaims(User);
+
+                var result = await _mediator.Send(new DeleteUserCommand(loggedInUser.Data,id));
+
+                if (result == null || !result.Succeeded)
+                {
+                    _logger.LogError("Failed to delete user");
+                    return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
+                }
+
+                return Ok(new { result.Succeeded, result.Data });
             }
-
-            var result = await _mediator.Send(new DeleteUserCommand(id));
-
-            if (result == null || !result.Succeeded)
+            catch
             {
-                _logger.LogError("Failed to delete user");
-                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
+                return BadRequest("Something went wrong while deleting the user.");
             }
-
-            return Ok(new { result.Succeeded, result.Data });
         }
 
         [Authorize(Roles = "User,Admin,SuperAdmin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(Guid id, UpdateUserDto updatedUser)
+        public async Task<IActionResult> UpdateUser(string UpdateUserid, UpdateUserDto updatedUser)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var result = await _mediator.Send(new UpdateUserCommand(id, updatedUser));
+            var loggedInUserId = _getUserService.GetUserIdFromClaims(User);
+
+
+            var result = await _mediator.Send(new UpdateUserCommand(loggedInUserId.Data, UpdateUserid, updatedUser));
 
             if (!result.Succeeded)
             {
@@ -158,7 +174,9 @@ namespace Presentation.Controllers
                 return BadRequest(ModelState);
             }
 
-            var result = await _mediator.Send(new ChangeRoleCommand(changeRoleDto));
+            var loggedInUserId = _getUserService.GetUserIdFromClaims(User);
+
+            var result = await _mediator.Send(new ChangeRoleCommand(loggedInUserId.Data, changeRoleDto));
             
             if (!result.Succeeded)
             {

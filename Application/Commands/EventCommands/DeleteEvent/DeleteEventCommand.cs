@@ -5,8 +5,8 @@ namespace Application.Commands.EventCommands.DeleteEvent
 {
     public class DeleteEventCommand : IRequest<OperationResult<Guid>>
     {
-        public Guid EventId { get; set; }
-        public DeleteEventCommand(Guid eventId)
+        public string EventId { get; set; }
+        public DeleteEventCommand(string eventId)
         {
             EventId = eventId;
         }

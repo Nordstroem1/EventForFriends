@@ -21,9 +21,9 @@ namespace Presentation.Controllers
             _mediator = mediator;
         }
         [HttpGet("getbyId")]
-        public async Task<IActionResult> GetCommentById(Guid id)
+        public async Task<IActionResult> GetCommentById(string id)
         {
-            if (id == Guid.Empty)
+            if (id == string.Empty)
             {
                 _logger.LogError("Invalid comment id");
                 return BadRequest("Invalid comment id");

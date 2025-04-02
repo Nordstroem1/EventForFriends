@@ -3,12 +3,5 @@ using MediatR;
 
 namespace Application.Commands.UserCommands.Delete
 {
-    public class DeleteUserCommand : IRequest<OperationResult<string>>
-    {
-        public DeleteUserCommand(Guid userId)
-        {
-            UserId = userId;
-        }
-        public Guid UserId { get; set; }
-    }
+    public sealed record DeleteUserCommand(string loggedinUser ,string UserId) : IRequest<OperationResult<string>>;
 }

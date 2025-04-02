@@ -16,13 +16,28 @@ namespace Application.Commands.UserCommands.Delete
         }
         public async Task<OperationResult<string>> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
-            if(request.UserId == Guid.Empty)
+            if(string.IsNullOrEmpty(request.UserId))
             {
                 _logger.LogError("User ID is empty");
                 return OperationResult<string>.Fail("User ID is empty", "Application");
             }
-            
-            User foundUser = await _userManager.FindByIdAsync(request.UserId.ToString());
+
+            User LoggedInUser = await _userManager.FindByIdAsync(request.loggedinUser);
+            if (LoggedInUser == null)
+            {
+                _logger.LogError("Could not find logged in user");
+                return OperationResult<string>.Fail("Could not find logged in user", "Application");
+            }
+
+            if(LoggedInUser.Role.ToLower() != "admin" 
+                || LoggedInUser.Role.ToLower() != "superadmin" 
+                || LoggedInUser.Id != request.UserId)
+            {
+                _logger.LogError("User does not have permission to delete user");
+                return OperationResult<string>.Fail("User does not have permission to delete user", "Application");
+            }
+
+            User foundUser = await _userManager.FindByIdAsync(request.UserId);
 
             if(foundUser == null)
             {

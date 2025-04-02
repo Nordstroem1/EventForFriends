@@ -2,6 +2,7 @@ using Application.DependencyInjection;
 using Domain.Models;
 using Infrastructure.Databases;
 using Infrastructure.DepencyInjection;
+using Infrastructure.Seeder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 
@@ -45,6 +46,13 @@ builder.Services.AddIdentity<User, IdentityRole>()
                 .AddDefaultTokenProviders();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var roleSeeder = services.GetRequiredService<RoleSeeder>();
+    await roleSeeder.SeedRoles();
+}
 
 if (app.Environment.IsDevelopment())
 {

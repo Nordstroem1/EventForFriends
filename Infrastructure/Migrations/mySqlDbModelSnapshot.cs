@@ -24,17 +24,17 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Comment", b =>
                 {
-                    b.Property<Guid>("CommentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("CommentId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CommentContent")
                         .IsRequired()
                         .HasMaxLength(400)
                         .HasColumnType("nvarchar(400)");
 
-                    b.Property<Guid>("EventId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("EventId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Likes")
                         .HasColumnType("int");
@@ -42,16 +42,13 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("TimeSent")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UserId1")
+                    b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("CommentId");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Comment");
                 });
@@ -324,7 +321,7 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Models.User", null)
                         .WithMany("Comments")
-                        .HasForeignKey("UserId1")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

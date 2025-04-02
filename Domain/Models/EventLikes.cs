@@ -2,7 +2,7 @@
 {
     public class EventLikes
     {
-        public Guid EventId { get; set; }
-        public Guid UserId { get; set; }
+        public string EventId { get; set; }
+        public string UserId { get; set; }
     }
 }

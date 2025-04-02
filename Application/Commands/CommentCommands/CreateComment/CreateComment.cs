@@ -7,8 +7,8 @@ namespace Application.Commands.CommentCommands.CreateComment
     public class CreateComment : IRequest<OperationResult<Comment>>
     {
         public CreateCommentDto CommentDto { get; set; }
-        public Guid UserID { get; set; }
-        public CreateComment(CreateCommentDto commentDto, Guid userID)
+        public string UserID { get; set; }
+        public CreateComment(CreateCommentDto commentDto, string userID)
         {
             CommentDto = commentDto;
             UserID = userID;

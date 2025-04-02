@@ -24,7 +24,7 @@ namespace Application.Hubs
             _userManager = userManager;
         }
 
-        public async Task CreateComment(CreateCommentDto commentdto,Guid UserId)
+        public async Task CreateComment(CreateCommentDto commentdto,string UserId)
         {
             var user = await FindUser();
             var result = await _mediator.Send(new CreateComment(commentdto, UserId));
@@ -40,7 +40,7 @@ namespace Application.Hubs
             }
         }
        
-        public async Task UpdateComment(UpdateCommentDto commentDto,Guid commentId) 
+        public async Task UpdateComment(UpdateCommentDto commentDto,string commentId) 
         {
             var user = await FindUser();
 
@@ -56,7 +56,7 @@ namespace Application.Hubs
             }
         }
 
-        public async Task DeleteComment(Guid commentId)
+        public async Task DeleteComment(string commentId)
         {
             var user = await FindUser();
 

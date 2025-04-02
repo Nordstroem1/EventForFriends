@@ -26,13 +26,13 @@ namespace Application.Commands.CommentCommands.CreateComment
         {
             try
             {
-                if (request.UserID == null || request.UserID == Guid.Empty)
+                if (request.UserID == null || request.UserID == string.Empty)
                 {
                     _logger.LogError("User not found");
                     return OperationResult<Comment>.Fail("User not found", "Applicaton");
                 }
 
-                var foundUser = await _userManager.FindByIdAsync(request.UserID.ToString());
+                var foundUser = await _userManager.FindByIdAsync(request.UserID);
 
                 if (foundUser == null)
                 {
@@ -43,7 +43,7 @@ namespace Application.Commands.CommentCommands.CreateComment
 
                 var newComment = new Comment
                 {
-                    CommentId = Guid.NewGuid(),
+                    CommentId = Guid.NewGuid().ToString(),
                     CommentContent = request.CommentDto.CommentContent,
                     TimeSent = DateTime.Now,
                     UserId = foundUser.Id,

@@ -6,6 +6,7 @@ using Application.Commands.EventCommands.UpdateEvent;
 using Application.Dtos.Event;
 using Domain.Models;
 using MediatR;
+using Microsoft.AspNetCore.Components.Web.Virtualization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -29,31 +30,20 @@ namespace Presentation.Controllers
         [HttpPost("createEvent")]
         public async Task<IActionResult> CreateEvent([FromBody] CreateEventDto eventDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                if (userId == null)
+                var result = await _mediator.Send(new CreateEventCommand(eventDto, userId));
+
+                if (!result.Succeeded)
                 {
-                    return BadRequest(OperationResult<User>.Fail("User is not logged in.", "EventController"));
-                }
-
-                var logedInUser = await _userManager.FindByIdAsync(userId);
-
-                if (logedInUser == null)
-                {
-                    return BadRequest(OperationResult<User>.Fail("Could not find user.", "EventController"));
-                }
-
-                var result = await _mediator.Send(new CreateEventCommand(eventDto, logedInUser.Id.ToString()));
-
-                if(!result.Succeeded)
-                {
-                    return BadRequest(OperationResult<Event>.Fail("Could Not create user.", "EventController"));
+                    return BadRequest(OperationResult<Event>.Fail(result.ErrorMessage, result.FailLocation));
                 }
 
                 return Ok(OperationResult<Event>.Success(result.Data));
@@ -61,12 +51,12 @@ namespace Presentation.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "CreateEvent Threw an exeption.");
-                return BadRequest(OperationResult<Event>.Fail("Could Not create user.", "EventController"));
+                return BadRequest(OperationResult<Event>.Fail("Could not create event.", "EventController"));
             }
         }
 
         [HttpPut("updateEvent")]
-        public async Task<IActionResult> UpdateEvent([FromBody] UpdateEventDto updateEventDto)
+        public async Task<IActionResult> UpdateEvent([FromBody] UpdateEventDto updateEventDto, string oldEventId)
         {
             if (!ModelState.IsValid)
             {
@@ -75,6 +65,7 @@ namespace Presentation.Controllers
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
                 if (userId == null)
                 {
                     return Unauthorized(OperationResult<User>.Fail("User is not logged in.", "EventController"));
@@ -86,7 +77,7 @@ namespace Presentation.Controllers
                     return Unauthorized(OperationResult<User>.Fail("Could not find user.", "EventController"));
                 }
 
-                var result = await _mediator.Send(new UpdateEventCommand(logedInUser.Id, updateEventDto));
+                var result = await _mediator.Send(new UpdateEventCommand(logedInUser.Id, oldEventId, updateEventDto));
                 if (!result.Succeeded)
                 {
                     return BadRequest(OperationResult<Event>.Fail("Could Not create user.", "Controller"));
@@ -102,7 +93,7 @@ namespace Presentation.Controllers
         }
 
         [HttpDelete("deleteEvent")]
-        public async Task<IActionResult> DeleteEvent([FromBody] Guid EventId)
+        public async Task<IActionResult> DeleteEvent([FromBody] string EventId)
         {
             try
             {

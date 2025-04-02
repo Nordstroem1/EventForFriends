@@ -21,7 +21,7 @@ namespace Application.Commands.EventCommands.DeleteEvent
             try
             {
 
-                if (request.EventId == Guid.Empty)
+                if (request.EventId == string.Empty)
                 {
                     _logger.LogError("Id is null");
                     return OperationResult<Guid>.Fail("EventId can't be null", "Application");

@@ -14,7 +14,7 @@ namespace Infrastructure.Data
             _mySqlDb = mySqlDb;
             _dbSet = _mySqlDb.Set<T>();
         }
-        public async Task<T>? GetByIdAsync(Guid id)
+        public async Task<T>? GetByIdAsync(string id)
         {
             return await _dbSet.FindAsync(id);
         }
