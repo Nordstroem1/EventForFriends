@@ -13,6 +13,7 @@ namespace Application.MappingProfiles
         {
             CreateMap<Comment, CreateCommentDto>().ReverseMap();
             CreateMap<Event, CreateEventDto>().ReverseMap();
+            CreateMap<User, UpdateUserDto>().ReverseMap();
             CreateMap<CreateUserDto, User>()
                      .ForMember(dest => dest.CreatedAt, opt => opt
                      .MapFrom(src => DateTime.UtcNow));

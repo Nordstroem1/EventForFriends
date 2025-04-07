@@ -89,7 +89,7 @@ namespace Presentation.Controllers
 
         [Authorize(Roles = "user,admin,superadmin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(string id, UpdateUserDto updatedUser)
+        public async Task<IActionResult> UpdateUser(string id,[FromBody] UpdateUserDto updatedUser)
         {
             if (!ModelState.IsValid)
             {
