@@ -13,7 +13,9 @@ namespace Application.MappingProfiles
         {
             CreateMap<Comment, CreateCommentDto>().ReverseMap();
             CreateMap<Event, CreateEventDto>().ReverseMap();
-            CreateMap<CreateUserDto, User>();
+            CreateMap<CreateUserDto, User>()
+                     .ForMember(dest => dest.CreatedAt, opt => opt
+                     .MapFrom(src => DateTime.UtcNow));
         }
     }
 }

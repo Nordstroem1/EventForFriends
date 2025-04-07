@@ -3,12 +3,5 @@ using MediatR;
 
 namespace Application.Commands.CommentCommands.DeleteComment
 {
-    public class DeleteCommentCommand : IRequest<OperationResult<string>>
-    {
-        public string CommentId { get; set; }
-        public DeleteCommentCommand(string commentId)
-        {
-            CommentId = commentId;
-        }
-    }
+    public sealed record DeleteCommentCommand(string CommentId) : IRequest<OperationResult<string>>;
 }

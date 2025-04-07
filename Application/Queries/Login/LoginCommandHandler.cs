@@ -24,16 +24,21 @@ namespace Application.Queries.Login
 
                 var foundUser = await LoginWithUsernameOrEmail(request);
 
+                if(foundUser == null)
+                {
+                    return OperationResult<string>.Fail("User not found", "LoginCommandHandler");
+                }
+
                 var authenticationResult = _tokenHelper.AuthenticateUser(foundUser.Id);
 
-                if (!authenticationResult.IsCompletedSuccessfully || foundUser == null)
+                if (!authenticationResult.IsCompletedSuccessfully)
                 {
-                    return OperationResult<string>.Fail("User not found", "Application");
+                    return OperationResult<string>.Fail("User not found", "LoginCommandHandler");
                 }
 
                 if (await IsUserLockedOut(foundUser))
                 {
-                    return OperationResult<string>.Fail("User is locked out", "Application");
+                    return OperationResult<string>.Fail("User is locked out", "LoginCommandHandler");
                 }
 
                 var result = await _signInManager.CheckPasswordSignInAsync(foundUser, request.LoginDto.Password, true);
@@ -42,10 +47,10 @@ namespace Application.Queries.Login
                 {
                     if (result.IsLockedOut)
                     {
-                        return OperationResult<string>.Fail("User is locked out due to too many failed attempts", "Application");
+                        return OperationResult<string>.Fail("User is locked out due to too many failed attempts", "LoginCommandHandler");
                     }
 
-                    return OperationResult<string>.Fail("Invalid password", "Application");
+                    return OperationResult<string>.Fail("Invalid password", "LoginCommandHandler");
                 }
 
                 await _userManager.ResetAccessFailedCountAsync(foundUser);
@@ -55,7 +60,7 @@ namespace Application.Queries.Login
             }
             catch (Exception ex)
             {
-                return OperationResult<string>.Fail(ex.Message, "Application");
+                return OperationResult<string>.Fail(ex.Message, "LoginCommandHandler");
             }
         }
 

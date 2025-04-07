@@ -14,6 +14,7 @@ using Application.Interfaces;
 
 namespace Presentation.Controllers
 {
+    [Authorize(AuthenticationSchemes = "ApplicationToken")]
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : Controller
@@ -56,7 +57,7 @@ namespace Presentation.Controllers
             }
         }
 
-        [Authorize(Roles = "User,Admin,SuperAdmin")]
+        [Authorize(Roles = "user,admin,superadmin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
@@ -78,7 +79,7 @@ namespace Presentation.Controllers
                     return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
                 }
 
-                return Ok(new { result.Succeeded, result.Data });
+                return Ok(result.Data);
             }
             catch
             {
@@ -86,9 +87,9 @@ namespace Presentation.Controllers
             }
         }
 
-        [Authorize(Roles = "User,Admin,SuperAdmin")]
+        [Authorize(Roles = "user,admin,superadmin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(string UpdateUserid, UpdateUserDto updatedUser)
+        public async Task<IActionResult> UpdateUser(string id, UpdateUserDto updatedUser)
         {
             if (!ModelState.IsValid)
             {
@@ -98,7 +99,7 @@ namespace Presentation.Controllers
             var loggedInUserId = _getUserService.GetUserIdFromClaims(User);
 
 
-            var result = await _mediator.Send(new UpdateUserCommand(loggedInUserId.Data, UpdateUserid, updatedUser));
+            var result = await _mediator.Send(new UpdateUserCommand(loggedInUserId.Data, id, updatedUser));
 
             if (!result.Succeeded)
             {
@@ -109,7 +110,7 @@ namespace Presentation.Controllers
             return Ok(new { result.Succeeded, result.Data });
         }
 
-        [Authorize(Roles = "User,Admin,SuperAdmin")]
+        [Authorize(Roles = "user,admin,superadmin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(Guid id)
         {
@@ -130,7 +131,7 @@ namespace Presentation.Controllers
             return Ok(new { result.Succeeded, result.Data });
         }
 
-        [Authorize(Roles = "User,Admin,SuperAdmin")]
+        [Authorize(Roles = "user,admin,superadmin")]
         [HttpGet("GetAllUsers")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -162,10 +163,10 @@ namespace Presentation.Controllers
                 return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
             }
 
-            return Ok(new { result.Succeeded, result.Data });
+            return Ok(result.Data);
         }
 
-        [Authorize(Roles = "Admin,SuperAdmin")]
+        [Authorize(Roles = "admin,superadmin")]
         [HttpPut("ChangeRole")]
         public async Task<IActionResult> ChangeRole([FromBody] ChangeRoleDto changeRoleDto)
         {

@@ -50,53 +50,15 @@ namespace Application.Commands.UserCommands.Update
                     foundUser.PasswordHash = _userManager.PasswordHasher.HashPassword(foundUser, request.UpdatedUser.Password);
                 }
 
-                if(!string.IsNullOrEmpty(request.UpdatedUser.Role))
-                {
-                    var role = await _roleManager.FindByNameAsync(request.UpdatedUser.Role);
-                    if (role == null)
-                    {
-                        _logger.LogError("Role not found");
-                       
-                        return OperationResult<User>.Fail("Role not found", "Application");
-                    }
-                    
-                    var userRoles = await _userManager.GetRolesAsync(foundUser);
-                    var removeRoleResult = await _userManager.RemoveFromRolesAsync(foundUser, userRoles);
-                    
-                    if (!removeRoleResult.Succeeded)
-                    {
-                        _logger.LogError("Failed to remove user roles");
-                       
-                        return OperationResult<User>.Fail("Failed to remove user roles", "Application");
-                    }
-
-                    var addRoleResult = await _userManager.AddToRoleAsync(foundUser, role.Name);
-                    
-                    if (!addRoleResult.Succeeded)
-                    {
-                        var reAddRolesResult = await _userManager.AddToRolesAsync(foundUser, userRoles);
-                        if (!reAddRolesResult.Succeeded)
-                        {
-                            _logger.LogError("Failed to reAdd old user roles after failing to add new role");
-                           
-                            return OperationResult<User>.Fail("Failed to reAdd old user roles after failing to add new role", "Application");
-                        }
-
-                        _logger.LogError("Failed to add user role");
-                        
-                        return OperationResult<User>.Fail("Failed to add user role", "Application");
-                    }
-                }
                 var result = await _userManager.UpdateAsync(foundUser);
 
                 if (!result.Succeeded)
                 {
                     _logger.LogError("Failed to update user");
-                 
                     return OperationResult<User>.Fail("Failed to update user", "Application");
                 }
+
                 _logger.LogInformation("User updated successfully");
-                
                 return OperationResult<User>.Success(foundUser);
             }
             catch

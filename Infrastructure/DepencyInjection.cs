@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace Infrastructure.DepencyInjection
+namespace Infrastructure
 {
     public static class DepencyInjection
     {
@@ -23,13 +23,10 @@ namespace Infrastructure.DepencyInjection
             });
 
             var jwtSettings = configuration.GetSection("JwtSettings");
-            var secretKey = jwtSettings["secret"];
+            var secretKey = jwtSettings["secret"]!;
 
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
+            services.AddAuthentication("ApplicationToken")
+            .AddJwtBearer("ApplicationToken", options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -37,32 +34,30 @@ namespace Infrastructure.DepencyInjection
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtSettings["Issuer"],
-                    ValidAudience = jwtSettings["Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+                    ValidIssuer = jwtSettings["issuer"],
+                    ValidAudience = jwtSettings["audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                        if (!string.IsNullOrEmpty(token))
+                        {
+                            context.Token = token;
+                        }
+                        return Task.CompletedTask;
+                    }
                 };
             });
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("superAdmin", policy =>
-                {
-                    policy.AuthenticationSchemes.Add(IdentityConstants.ApplicationScheme);
-                    policy.RequireAuthenticatedUser();
-                    policy.RequireRole("superadmin");
-                });
-                options.AddPolicy("admin", policy =>
-                {
-                    policy.AuthenticationSchemes.Add(IdentityConstants.ApplicationScheme);
-                    policy.RequireAuthenticatedUser();
-                    policy.RequireRole("admin");
-                });
-                options.AddPolicy("user", policy =>
-                {
-                    policy.AuthenticationSchemes.Add(IdentityConstants.ApplicationScheme);
-                    policy.RequireAuthenticatedUser();
-                    policy.RequireRole("user");
-                });
+                options.AddPolicy("user", policy => policy.RequireRole("user").RequireAuthenticatedUser().AddAuthenticationSchemes("ApplicationToken"));
+                options.AddPolicy("admin", policy => policy.RequireRole("admin").RequireAuthenticatedUser().AddAuthenticationSchemes("ApplicationToken"));
+                options.AddPolicy("superadmin", policy => policy.RequireRole("superadmin").RequireAuthenticatedUser().AddAuthenticationSchemes("ApplicationToken"));
             });
 
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
