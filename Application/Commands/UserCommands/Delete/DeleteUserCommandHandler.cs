@@ -29,9 +29,9 @@ namespace Application.Commands.UserCommands.Delete
                 return OperationResult<string>.Fail("Could not find logged in user", "Application");
             }
 
-            if(LoggedInUser.Role.ToLower() != "admin" 
-                || LoggedInUser.Role.ToLower() != "superadmin" 
-                || LoggedInUser.Id != request.UserId)
+            if(LoggedInUser.Id != request.UserId 
+                && LoggedInUser.Role.ToLower() != "admin" 
+                && LoggedInUser.Role.ToLower() != "superadmin")
             {
                 _logger.LogError("User does not have permission to delete user");
                 return OperationResult<string>.Fail("User does not have permission to delete user", "Application");

@@ -13,15 +13,12 @@ namespace Application.Dtos.User
         public string Password { get; set; }
         [Required]
         public int PhoneNumber { get; set; }
-        [Required]
-        public string Role { get; set; }
-        public UpdateUserDto(Guid id, string userName, string email, string password, int phoneNumber, string role)
+        public UpdateUserDto(Guid id, string userName, string email, string password, int phoneNumber)
         {
             UserName = userName;
             Email = email;
             Password = password;
             PhoneNumber = phoneNumber;
-            Role = role;
         }
     }
 }

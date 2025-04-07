@@ -1,7 +1,7 @@
 using Application.DependencyInjection;
 using Domain.Models;
+using Infrastructure;
 using Infrastructure.Databases;
-using Infrastructure.DepencyInjection;
 using Infrastructure.Seeder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
@@ -12,14 +12,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Event API", Version = "v1" });
 
-    // Add JWT Authentication to Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-        Name = "Authorization",
         In = ParameterLocation.Header,
+        Name = "Authorization",
         Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });

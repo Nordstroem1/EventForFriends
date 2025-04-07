@@ -15,7 +15,7 @@ namespace Infrastructure.Seeder
             using (var scope = _serviceProvider.CreateScope())
             {
                 var services = scope.ServiceProvider;
-                await DepencyInjection.DepencyInjection.SeedRoles(services);
+                await DepencyInjection.SeedRoles(services);
             }
         }
     }
