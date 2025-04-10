@@ -15,6 +15,12 @@ namespace Application.MappingProfiles
             CreateMap<User, UpdateUserDto>().ReverseMap();
             CreateMap<UpdateEventDto, Event>().ReverseMap();
 
+            CreateMap<User, UserLikeDto>()
+                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id));
+
+            CreateMap<Event, EventWithLikesDto>()
+                .ForMember(dest => dest.LikeList, opt => opt.MapFrom(src => src.LikeList));
+
             CreateMap<Event, CreateEventDto>().ReverseMap()
             .ForMember(dest => dest.EventId, opt => opt
             .MapFrom(src => Guid.NewGuid().ToString()));

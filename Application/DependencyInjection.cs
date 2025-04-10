@@ -18,7 +18,9 @@ namespace Application.DependencyInjection
             services.AddScoped<TokenHelper>();
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IGetUser, GetUser>();
+            services.AddScoped<IPermissionChecker, PermissionChecker>();
             services.AddSignalR();
+
             return services;
         }
     }

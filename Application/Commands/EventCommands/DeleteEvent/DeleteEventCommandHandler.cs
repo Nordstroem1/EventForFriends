@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces;
+﻿using Application.Interfaces;
+using Domain.Interfaces;
 using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -11,8 +12,10 @@ namespace Application.Commands.EventCommands.DeleteEvent
         private readonly IGenericRepository<Event> _eventRepository;
         private readonly UserManager<User> _userManager;
         private readonly ILogger<DeleteEventCommandHandler> _logger;
-        public DeleteEventCommandHandler(UserManager<User> userManager , IGenericRepository<Event> eventRepository, ILogger<DeleteEventCommandHandler> logger)
+        private readonly IPermissionChecker _permissionChecker;
+        public DeleteEventCommandHandler(IPermissionChecker permissionChecker, UserManager<User> userManager , IGenericRepository<Event> eventRepository, ILogger<DeleteEventCommandHandler> logger)
         {
+            _permissionChecker = permissionChecker;
             _eventRepository = eventRepository;
             _logger = logger;
             _userManager = userManager;
@@ -41,11 +44,8 @@ namespace Application.Commands.EventCommands.DeleteEvent
                     return OperationResult<bool>.Fail("Could not find foundEvent", "Application");
                 }
 
-                if(foundUser.Id != foundEvent.CreatedBy &&
-                    foundUser.Role.ToLower() == "superadmin" &&
-                    foundUser.Role.ToLower() == "admin")
+                if (!_permissionChecker.HasPermissionToModifyAsync(foundUser, foundEvent))
                 {
-                    _logger.LogError("User does not have permission to delete this event");
                     return OperationResult<bool>.Fail("User does not have permission to delete this event", "Application");
                 }
 

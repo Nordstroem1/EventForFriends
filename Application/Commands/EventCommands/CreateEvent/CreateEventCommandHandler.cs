@@ -39,7 +39,7 @@ namespace Application.Commands.EventCommands.CreateEvent
                     return OperationResult<Event>.Fail("User not found", "Applicaton");
                 }
 
-                var newEvent = _mapper.Map<Event>(request.EventDto);
+                var newEvent = _mapper.Map<Event>(request);
                 newEvent.CreatedBy = foundUser.Id;
 
                 await _eventRepository.AddAsync(newEvent);
