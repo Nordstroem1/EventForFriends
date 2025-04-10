@@ -11,7 +11,9 @@ namespace Application.MappingProfiles
     {
         public MappingProfile()
         {
-            CreateMap<Comment, CreateCommentDto>().ReverseMap();
+            CreateMap<CreateCommentDto, Comment>()
+                .ForMember(dest => dest.CommentId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()));
+
             CreateMap<User, UpdateUserDto>().ReverseMap();
             CreateMap<UpdateEventDto, Event>().ReverseMap();
 

@@ -26,32 +26,31 @@ namespace Application.Commands.CommentCommands.CreateComment
         {
             try
             {
-                if (request.UserID == null || request.UserID == string.Empty)
+                if (request.UserId == null || request.UserId == string.Empty)
                 {
                     _logger.LogError("User not found");
-                    return OperationResult<Comment>.Fail("User not found", "Applicaton");
+                    return OperationResult<Comment>.Fail("User not found", "CreateCommentHandler");
                 }
 
-                var foundUser = await _userManager.FindByIdAsync(request.UserID);
+                var foundEvent = await _eventRepository.GetByIdAsync(request.CommentDto.EventId);
+                var foundUser = await _userManager.FindByIdAsync(request.UserId);
 
                 if (foundUser == null)
                 {
                     _logger.LogError("User not found");
-                    return OperationResult<Comment>.Fail("User not found", "Applicaton");
+                    return OperationResult<Comment>.Fail("User not found", "CreateCommentHandler");
+                }
+                if (foundEvent == null)
+                {
+                    _logger.LogError("Event not found");
+                    return OperationResult<Comment>.Fail("Event not found", "CreateCommentHandler");
                 }
 
 
-                var newComment = new Comment
-                {
-                    CommentId = Guid.NewGuid().ToString(),
-                    CommentContent = request.CommentDto.CommentContent,
-                    TimeSent = DateTime.Now,
-                    UserId = foundUser.Id,
-                    EventId = request.CommentDto.EventId,
-                    Likes = 0
-                };
+                var mappedComment = _mapper.Map<Comment>(request.CommentDto);
+                mappedComment.UserId = foundUser.Id;
 
-                var result = await _commentRepository.AddAsync(newComment);
+                var result = await _commentRepository.AddAsync(mappedComment);
                 _logger.LogInformation("Comment created successfully");
 
                 return OperationResult<Comment>.Success(result);
@@ -59,7 +58,7 @@ namespace Application.Commands.CommentCommands.CreateComment
             catch
             {
                 _logger.LogError("Unexpected error");
-                return OperationResult<Comment>.Fail("Unexpected error", "Applicaton");
+                return OperationResult<Comment>.Fail("Unexpected error", "CreateCommentHandler");
             }
         }
     }

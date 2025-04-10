@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Application.Interfaces;
+using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -8,9 +9,11 @@ namespace Application.Commands.UserCommands.Delete
     public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, OperationResult<string>>
     {
         private readonly UserManager<User> _userManager;
-        readonly ILogger<DeleteUserCommandHandler> _logger;
-        public DeleteUserCommandHandler(UserManager<User> userManager, ILogger<DeleteUserCommandHandler> logger)
+        private readonly ILogger<DeleteUserCommandHandler> _logger;
+        private readonly IPermissionChecker _permissionChecker;
+        public DeleteUserCommandHandler(IPermissionChecker permissionChecker, UserManager<User> userManager, ILogger<DeleteUserCommandHandler> logger)
         {
+            _permissionChecker = permissionChecker;
             _logger = logger;
             _userManager = userManager;
         }

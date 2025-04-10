@@ -29,6 +29,7 @@ namespace Application.Commands.UserCommands.Update
                    
                     return OperationResult<User>.Fail("User is null", "Application");
                 }
+
                 var loggedInUser = await _userManager.FindByIdAsync(request.LoggedInUser);
                 var foundUser = await _userManager.FindByIdAsync(request.UserId.ToString());
 
@@ -48,6 +49,14 @@ namespace Application.Commands.UserCommands.Update
                 if (!string.IsNullOrEmpty(request.UpdatedUser.Password))
                 {
                     foundUser.PasswordHash = _userManager.PasswordHasher.HashPassword(foundUser, request.UpdatedUser.Password);
+                }
+
+                if (loggedInUser.Id != request.UserId
+                && loggedInUser.Role.ToLower() != "admin"
+                && loggedInUser.Role.ToLower() != "superadmin")
+                {
+                    _logger.LogError("User does not have permission to delete user");
+                    return OperationResult<User>.Fail("User does not have permission to delete user", "Application");
                 }
 
                 var result = await _userManager.UpdateAsync(foundUser);

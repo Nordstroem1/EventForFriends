@@ -60,7 +60,6 @@ namespace Application.Hubs
         {
             var user = await FindUser();
 
-
             var foundComment = await _mediator.Send(new GetCommentByIdQuery(commentId));
             if(user.Role != "Admin"|| foundComment.Data.UserId == user.Id)
             {

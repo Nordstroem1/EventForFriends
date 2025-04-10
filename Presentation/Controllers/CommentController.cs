@@ -46,12 +46,12 @@ namespace Presentation.Controllers
             }
         }
 
-        [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAllComments()
+        [HttpGet("{EventId}")]
+        public async Task<IActionResult> GetAllComments(string EventId)
         {
             try
             {
-                var result = await _mediator.Send(new GetAllEventsQuery());
+                var result = await _mediator.Send(new GetAllComments(EventId));
                 if (result == null || !result.Succeeded)
                 {
                     _logger.LogError("Failed to get comment");
