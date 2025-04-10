@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initzialmigraion : Migration
+    public partial class seedTables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -56,7 +56,7 @@ namespace Infrastructure.Migrations
                 name: "Events",
                 columns: table => new
                 {
-                    EventId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EventId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     EventName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(700)", maxLength: 700, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -204,7 +204,7 @@ namespace Infrastructure.Migrations
                 name: "EventUser",
                 columns: table => new
                 {
-                    EventsEventId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EventsEventId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     LikeListId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>

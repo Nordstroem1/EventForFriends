@@ -11,12 +11,12 @@ namespace Application.Dtos.Event
         [Required]
         [MaxLength(700)]
         public string Description { get; set; }
-        public DateTime CreatedAt { get; set; }
         public DateTime StartDate { get; set; }
         [Required]
         public DateTime EndDate { get; set; }
         public string? ImageUrl { get; set; }
         public bool IsclosedEvent { get; set; }
+        [MaxLength(50)]
         public string Location { get; set; }
     }
 }

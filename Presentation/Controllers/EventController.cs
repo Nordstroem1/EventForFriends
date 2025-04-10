@@ -1,18 +1,21 @@
 ﻿using Application.Commands.EventCommands.CreateEvent;
 using Application.Commands.EventCommands.DeleteEvent;
-using Application.Commands.EventCommands.LikeEvent;
 using Application.Commands.EventCommands.LikesEvent;
 using Application.Commands.EventCommands.UpdateEvent;
 using Application.Dtos.Event;
+using Application.Interfaces;
+using Application.Queries.EventQueries.GetEventById;
 using Domain.Models;
 using MediatR;
-using Microsoft.AspNetCore.Components.Web.Virtualization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
 namespace Presentation.Controllers
 {
+    [Authorize(AuthenticationSchemes = "ApplicationToken")]
     [ApiController]
     [Route("api/[controller]")]
     public class EventController : Controller
@@ -20,11 +23,14 @@ namespace Presentation.Controllers
         private readonly IMediator _mediator;
         private readonly ILogger<EventController> _logger;
         private readonly UserManager<User> _userManager;
-        public EventController(IMediator mediator, ILogger<EventController> logger, UserManager<User> userManager)
+        private readonly IGetUser _getUserService;
+
+        public EventController(IMediator mediator, IGetUser getUserService, ILogger<EventController> logger, UserManager<User> userManager)
         {
             _logger = logger;
             _mediator = mediator;
             _userManager = userManager;
+            _getUserService = getUserService;
         }
 
         [HttpPost("createEvent")]
@@ -37,9 +43,14 @@ namespace Presentation.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var userIdResponse = _getUserService.GetUserIdFromClaims(User);
 
-                var result = await _mediator.Send(new CreateEventCommand(eventDto, userId));
+                if (!userIdResponse.Succeeded)
+                {
+                    return Unauthorized(OperationResult<User>.Fail($"{"User is not logged in. "} {userIdResponse.ErrorMessage}", "EventController"));
+                }
+
+                var result = await _mediator.Send(new CreateEventCommand(eventDto, userIdResponse.Data));
 
                 if (!result.Succeeded)
                 {
@@ -71,24 +82,19 @@ namespace Presentation.Controllers
                     return Unauthorized(OperationResult<User>.Fail("User is not logged in.", "EventController"));
                 }
 
-                var logedInUser = await _userManager.FindByIdAsync(userId);
-                if (logedInUser == null)
-                {
-                    return Unauthorized(OperationResult<User>.Fail("Could not find user.", "EventController"));
-                }
+                var result = await _mediator.Send(new UpdateEventCommand(userId, oldEventId, updateEventDto));
 
-                var result = await _mediator.Send(new UpdateEventCommand(logedInUser.Id, oldEventId, updateEventDto));
                 if (!result.Succeeded)
                 {
                     return BadRequest(OperationResult<Event>.Fail("Could Not create user.", "Controller"));
                 }
 
-                return Ok(OperationResult<UpdateEventDto>.Success(result.Data));
+                return Ok(OperationResult<Event>.Success(result.Data));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "CreateEvent Threw an exeption.");
-                return BadRequest(OperationResult<Event>.Fail("Could Not create user.", "Controller"));
+                return BadRequest(OperationResult<Event>.Fail("Could not update event.", "Controller"));
             }
         }
 
@@ -97,42 +103,69 @@ namespace Presentation.Controllers
         {
             try
             {
-
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
                 }
 
-                var result = await _mediator.Send(new DeleteEventCommand(EventId));
-                if (!result.Succeeded || result.Data == Guid.Empty)
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userId == null)
                 {
-                    return BadRequest(OperationResult<Guid>.Fail("Could Not create user.", "Controller"));
+                    return Unauthorized(OperationResult<User>.Fail("User is not logged in.", "EventController"));
                 }
 
-                return Ok(OperationResult<Guid>.Success(result.Data));
+                var result = await _mediator.Send(new DeleteEventCommand(userId, EventId));
+                if (!result.Succeeded || !result.Data)
+                {
+                    return BadRequest(OperationResult<Guid>.Fail("Could not delete event.", "Controller"));
+                }
+
+                return Ok(OperationResult<bool>.Success(result.Data));
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 _logger.LogError("Unexpected error");
-                return BadRequest(OperationResult<User>.Fail("Unexpected error","Controller"));
+                return BadRequest(OperationResult<User>.Fail("Unexpected error", "Controller"));
             }
         }
 
         [HttpPost("likeEvent")]
-        public async Task<IActionResult> LikeEvent([FromBody]EventLikes likeEventDto)
+        public async Task<IActionResult> LikeEvent([FromBody] string eventId)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState); 
+                return BadRequest(ModelState);
             }
 
-            var result = await _mediator.Send(new LikeEventCommand(likeEventDto));
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(OperationResult<User>.Fail("User is not logged in.", "EventController"));
+            }
+
+            var result = await _mediator.Send(new LikeEventCommand(userId, eventId));
 
             if (!result.Succeeded)
             {
                 return BadRequest(result.ErrorMessage);
             }
 
+            return Ok(result.Data);
+        }
+        [HttpGet("getEventById")]
+        public async Task<IActionResult> GetEventById(string eventId)
+        {
+            if (string.IsNullOrEmpty(eventId))
+            {
+                return BadRequest("EventId can't be null");
+            }
+
+            var result = await _mediator.Send(new GetEventbyIdQuery(eventId));
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
             return Ok(result.Data);
         }
     }

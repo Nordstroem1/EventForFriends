@@ -1,14 +1,8 @@
 ﻿using Domain.Models;
 using MediatR;
+using System.Linq.Expressions;
 
 namespace Application.Queries.EventQueries.GetEventById
 {
-    public class GetEventbyIdQuery : IRequest<OperationResult<Event>>
-    {
-        public string EventId { get; set; }
-        public GetEventbyIdQuery(string eventId)
-        {
-            EventId = eventId;
-        }
-    }
+    public sealed record GetEventbyIdQuery(string EventId, params Expression<Func<Event, object>>[] Includes) : IRequest<OperationResult<Event>>;
 }

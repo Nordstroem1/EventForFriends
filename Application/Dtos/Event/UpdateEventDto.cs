@@ -16,11 +16,10 @@ namespace Application.Dtos.Event
         public DateTime EndDate { get; set; }
         public string? ImageUrl { get; set; }
         public bool IsclosedEvent { get; set; }
-        public string CreatedBy { get; set; }
         public string Location { get; set; }
 
         public UpdateEventDto() { }
-        public UpdateEventDto(string eventName, string description, DateTime startDate, DateTime endDate, string imageUrl, bool isclosedEvent, string createdBy, string location)
+        public UpdateEventDto(string eventName, string description, DateTime startDate, DateTime endDate, string imageUrl, bool isclosedEvent, string location)
         {
             EventName = eventName;
             Description = description;
@@ -28,7 +27,6 @@ namespace Application.Dtos.Event
             EndDate = endDate;
             ImageUrl = imageUrl;
             IsclosedEvent = isclosedEvent;
-            CreatedBy = createdBy;
             Location = location;
         }
     }

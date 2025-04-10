@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(mySqlDb))]
-    [Migration("20250401172100_initzialmigraion")]
-    partial class initzialmigraion
+    [Migration("20250409192329_seedTables")]
+    partial class seedTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -58,9 +58,8 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Event", b =>
                 {
-                    b.Property<Guid>("EventId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("EventId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -174,8 +173,8 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("EventUser", b =>
                 {
-                    b.Property<Guid>("EventsEventId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("EventsEventId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LikeListId")
                         .HasColumnType("nvarchar(450)");

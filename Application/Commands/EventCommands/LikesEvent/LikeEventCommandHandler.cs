@@ -1,6 +1,7 @@
 ﻿using Application.Commands.EventCommands.LikesEvent;
 using Domain.Interfaces;
 using Domain.Models;
+using Infrastructure.Databases;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -12,23 +13,25 @@ namespace Application.Commands.EventCommands.LikeEvent
         private readonly IGenericRepository<Event> _eventRepository;
         private readonly UserManager<User> _userManager;
         private readonly ILogger<LikeEventCommandHandler> _logger;
+        private readonly mySqlDb _mySqlDb;
 
-        public LikeEventCommandHandler(IGenericRepository<Event> eventRepository, UserManager<User> userRepository, ILogger<LikeEventCommandHandler> logger)
+        public LikeEventCommandHandler(mySqlDb mySqlDb, IGenericRepository<Event> eventRepository, UserManager<User> userRepository, ILogger<LikeEventCommandHandler> logger)
         {
             _eventRepository = eventRepository;
             _userManager = userRepository;
             _logger = logger;
+            _mySqlDb = mySqlDb;
         }
         public async Task<OperationResult<int>> Handle(LikeEventCommand request, CancellationToken cancellationToken)
         {
-            var eventEntity = await _eventRepository.GetByIdAsync(request._eventLikes.EventId);
+            var eventEntity = await _eventRepository.GetByIdAsync(request.EventId);
             if (eventEntity == null)
             {
                 _logger.LogError("Event not found.");
                 return OperationResult<int>.Fail("Event not found", "Application");
             }
 
-            var foundUser = await _userManager.FindByIdAsync(request._eventLikes.UserId.ToString());
+            var foundUser = await _userManager.FindByIdAsync(request.UserId);
 
             if (foundUser == null)
             {
@@ -52,12 +55,19 @@ namespace Application.Commands.EventCommands.LikeEvent
 
         private async Task<OperationResult<int>> RemoveLikeIfAlreadyLiked(Event eventEntity, User? foundUser)
         {
-            if (eventEntity.LikeList.Any(u => u.Id == foundUser.Id))
+            if (!_mySqlDb.Entry(eventEntity).Collection(e => e.LikeList).IsLoaded)
             {
-                eventEntity.LikeList.Remove(foundUser);
-                await _eventRepository.UpdateAsync(eventEntity);
+                await _mySqlDb.Entry(eventEntity).Collection(e => e.LikeList).LoadAsync();
+            }
 
-                _logger.LogInformation("User have removed like.");
+            var trackedUser = eventEntity.LikeList.FirstOrDefault(u => u.Id == foundUser.Id);
+
+            if (trackedUser != null)
+            {
+                eventEntity.LikeList.Remove(trackedUser);
+
+                await _eventRepository.UpdateAsync(eventEntity);
+                _logger.LogInformation("User has removed like.");
 
                 return OperationResult<int>.Success(eventEntity.LikeList.Count);
             }
