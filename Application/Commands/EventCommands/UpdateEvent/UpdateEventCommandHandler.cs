@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.EventCommands.UpdateEvent
 {
-    public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, OperationResult<UpdateEventDto>>
+    public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, OperationResult<Event>>
     {
         private readonly IGenericRepository<Event> _eventRepository;   
         private readonly ILogger<UpdateEventCommandHandler> _logger;
@@ -21,39 +21,48 @@ namespace Application.Commands.EventCommands.UpdateEvent
             _userManager = userManager;
             _mapper = mapper;
         }
-        public async Task<OperationResult<UpdateEventDto>> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult<Event>> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
         {
             try
             {
                 if (request.UpdateEventDto == null)
                 {
                     _logger.LogError("Event data is required");
-                    return OperationResult<UpdateEventDto>.Fail("Event data is required", "Applicaton");
+                    return OperationResult<Event>.Fail("Event data is required", "Applicaton");
                 }
 
-                var foundUser = await _userManager.FindByIdAsync(request.UpdateEventDto.CreatedBy);
+                var foundUser = await _userManager.FindByIdAsync(request.UserId);
                 if (foundUser == null)
                 {
                     _logger.LogError("User not found");
-                    return OperationResult<UpdateEventDto>.Fail("User not found", "Application");
+                    return OperationResult<Event>.Fail("User not found", "Application");
                 }
 
                 var foundEvent = await _eventRepository.GetByIdAsync(request.EventId);
                 if (foundEvent == null)
                 {
                     _logger.LogError("Event not found");
-                    return OperationResult<UpdateEventDto>.Fail("Event not found", "Applicaton");
+                    return OperationResult<Event>.Fail("Event not found", "Applicaton");
                 }
 
-                var updatedEvent = _mapper.Map<UpdateEventDto>(request.UpdateEventDto);
-                await _eventRepository.UpdateAsync(foundEvent);
+                if(foundUser.Id != foundEvent.CreatedBy &&
+                    foundUser.Role.ToLower() == "superadmin" &&
+                    foundUser.Role.ToLower() == "admin")
+                {
+                    _logger.LogError("User does not have permission to update this event");
+                    return OperationResult<Event>.Fail("User does not have permission to update this event", "Applicaton");
+                }
+
+                var updatedEvent = _mapper.Map(request.UpdateEventDto, foundEvent);
+
+                await _eventRepository.UpdateAsync(updatedEvent);
                 _logger.LogInformation("Event updated successfully");
 
-                return OperationResult<UpdateEventDto>.Success(updatedEvent);
+                return OperationResult<Event>.Success(updatedEvent);
             }
             catch
             {
-                return OperationResult<UpdateEventDto>.Fail("Unexpected error", "Applicaton");
+                return OperationResult<Event>.Fail("Unexpected error", "Applicaton");
             }
         }
     }

@@ -14,6 +14,14 @@ namespace Infrastructure.Databases
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Event>()
+           .HasMany(e => e.LikeList)
+           .WithMany(u => u.Events)
+           .UsingEntity<Dictionary<string, object>>(
+           "EventUser",
+           j => j.HasOne<User>().WithMany().HasForeignKey("UserId"),
+           j => j.HasOne<Event>().WithMany().HasForeignKey("EventId"));
+
             base.OnModelCreating(modelBuilder);
         }
     }

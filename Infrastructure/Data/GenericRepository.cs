@@ -44,5 +44,20 @@ namespace Infrastructure.Data
             await _mySqlDb.SaveChangesAsync();
             return entity;
         }
+        public async Task<T> GetByIdWithIncludesAsync(string id, params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+
+            var keyName = _mySqlDb.Model.FindEntityType(typeof(T))?.FindPrimaryKey()?.Properties
+            .Select(p => p.Name)
+            .FirstOrDefault();
+
+            if (keyName == null)
+            {
+                throw new InvalidOperationException($"No primary key defined for entity {typeof(T).Name}");
+            }
+
+            return await query.FirstOrDefaultAsync(e => EF.Property<string>(e, keyName) == id);
+        }
     }
 }

@@ -5,7 +5,7 @@ namespace Domain.Models
     public class Event
     {
         [Required]
-        public Guid EventId { get; set; }
+        public string EventId { get; set; }
         [Required]
         [MaxLength(50)]
         [MinLength(2)]
@@ -24,7 +24,7 @@ namespace Domain.Models
         public List<User> LikeList { get; set; } = new List<User>();
 
         public Event(){}
-        public Event(Guid eventId, string eventName, string description, DateTime createdAt, DateTime startDate, DateTime endDate, string imageUrl, bool isclosedEvent, string createdBy,  string location)
+        public Event(string eventId, string eventName, string description, DateTime createdAt, DateTime startDate, DateTime endDate, string imageUrl, bool isclosedEvent, string createdBy,  string location)
         {
             EventId = eventId;
             EventName = eventName;

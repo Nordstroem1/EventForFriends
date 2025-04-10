@@ -3,12 +3,5 @@ using MediatR;
 
 namespace Application.Commands.EventCommands.LikesEvent
 {
-    public class LikeEventCommand : IRequest<OperationResult<int>>
-    {
-        public EventLikes _eventLikes { get; set; }
-        public LikeEventCommand(EventLikes eventLikes)
-        {
-            _eventLikes = eventLikes;
-        }
-    }
+    public sealed record LikeEventCommand(string UserId,string EventId) : IRequest<OperationResult<int>>;
 }

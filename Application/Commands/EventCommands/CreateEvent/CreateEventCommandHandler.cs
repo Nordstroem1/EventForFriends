@@ -40,6 +40,7 @@ namespace Application.Commands.EventCommands.CreateEvent
                 }
 
                 var newEvent = _mapper.Map<Event>(request.EventDto);
+                newEvent.CreatedBy = foundUser.Id;
 
                 await _eventRepository.AddAsync(newEvent);
                 _logger.LogInformation("Event created successfully");

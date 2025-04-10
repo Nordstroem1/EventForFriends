@@ -22,7 +22,7 @@ namespace Application.Queries.EventQueries.GetEventById
                 return OperationResult<Event>.Fail("No id was given", "Application");
             }
 
-            var result = await _eventRepository.GetByIdAsync(request.EventId);
+            var result = await _eventRepository.GetByIdWithIncludesAsync(request.EventId,e => e.LikeList);
 
             if (result == null)
             {
