@@ -68,7 +68,7 @@ namespace Infrastructure
             });
 
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-            services.AddScoped<IGenericRepository<User>, GenericRepository<User>>();
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddSingleton<RoleSeeder>();
 
             return services;
