@@ -4,5 +4,5 @@ using MediatR;
 
 namespace Application.Commands.CommentCommands.CreateComment
 {
-    public sealed record CreateComment(CreateCommentDto CommentDto, string UserId) : IRequest<OperationResult<Comment>>;
+    public sealed record CreateCommentCommand(CreateCommentDto CommentDto, string UserId) : IRequest<OperationResult<Comment>>;
 }

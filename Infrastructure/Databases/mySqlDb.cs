@@ -2,15 +2,21 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Application.Interfaces;
 
 namespace Infrastructure.Databases
 {
-    public class mySqlDb : IdentityDbContext<User, IdentityRole, string>
+    public class mySqlDb : IdentityDbContext<User, IdentityRole, string>,IMySqlContext
     {
         public mySqlDb(DbContextOptions<mySqlDb> options) : base(options) { }
         public DbSet<User> Users { get; set; }
         public DbSet<Event> Events { get; set; }
         public DbSet<Comment> Comment { get; set; }
+
+        public Task LoadCollectionAsync<TEntity>(TEntity entity, string collectionName) where TEntity : class
+        {
+            throw new NotImplementedException();
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,10 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Application.Token;
-using Domain.Interfaces;
-using Infrastructure.Data;
-using Microsoft.Extensions.Configuration;
-using Application.Interfaces;
+﻿using Application.Interfaces;
 using Application.Services;
+using Application.Token;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Application.DependencyInjection
 {
@@ -16,7 +14,6 @@ namespace Application.DependencyInjection
             services.AddAutoMapper(assembly);
             services.AddMediatR(config => config.RegisterServicesFromAssemblies(assembly));
             services.AddScoped<TokenHelper>();
-            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IGetUser, GetUser>();
             services.AddScoped<IPermissionChecker, PermissionChecker>();
             services.AddSignalR();

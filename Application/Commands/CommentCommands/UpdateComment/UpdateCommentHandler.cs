@@ -58,17 +58,17 @@ namespace Application.Commands.CommentCommands.UpdateComment
                 if (result == null)
                 {
                     _logger.LogError("Could not update comment");
-                    return OperationResult<UpdateCommentDto>.Fail("Could not update comment", "Application");
+                    return OperationResult<Comment>.Fail("Could not update comment", "Application");
                 }
 
                 _logger.LogInformation("Comment updated successfully");
 
-                return OperationResult<UpdateCommentDto>.Success(request.UpdateCommentDto);
+                return OperationResult<Comment>.Success(result);
             }
             catch
             {
                 _logger.LogError("Unexpected error");
-                return OperationResult<UpdateCommentDto>.Fail("Unexpected error", "Application");
+                return OperationResult<Comment>.Fail("Unexpected error", "Application");
             }
         }
     }

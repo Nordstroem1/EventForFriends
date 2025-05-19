@@ -24,8 +24,9 @@ namespace Application.MappingProfiles
                 .ForMember(dest => dest.LikeList, opt => opt.MapFrom(src => src.LikeList));
 
             CreateMap<Event, CreateEventDto>().ReverseMap()
-            .ForMember(dest => dest.EventId, opt => opt
-            .MapFrom(src => Guid.NewGuid().ToString()));
+            .ForMember(dest => dest.EventId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
+            .ForMember(dest => dest.LikeList, opt => opt.MapFrom(src => new List<User>()));
+
 
             CreateMap<CreateUserDto, User>()
                      .ForMember(dest => dest.CreatedAt, opt => opt

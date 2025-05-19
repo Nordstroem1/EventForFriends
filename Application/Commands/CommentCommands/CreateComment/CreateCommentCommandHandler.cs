@@ -7,14 +7,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.CommentCommands.CreateComment
 {
-    public class CreateCommentHandler : IRequestHandler<CreateComment, OperationResult<Comment>>
+    public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, OperationResult<Comment>>
     {
         private readonly IGenericRepository<Comment> _commentRepository;
         private readonly IGenericRepository<Event> _eventRepository;
         private readonly UserManager<User> _userManager;
-        private readonly ILogger<CreateCommentHandler> _logger;
+        private readonly ILogger<CreateCommentCommandHandler> _logger;
         private readonly IMapper _mapper;
-        public CreateCommentHandler(IGenericRepository<Comment> commentRepository,IGenericRepository<Event> eventrepository, UserManager<User> userManager, ILogger<CreateCommentHandler> logger, IMapper mapper)
+        public CreateCommentCommandHandler(IGenericRepository<Comment> commentRepository,IGenericRepository<Event> eventrepository, UserManager<User> userManager, ILogger<CreateCommentCommandHandler> logger, IMapper mapper)
         {
             _commentRepository = commentRepository;
             _eventRepository = eventrepository;
@@ -22,7 +22,7 @@ namespace Application.Commands.CommentCommands.CreateComment
             _logger = logger;
             _mapper = mapper;
         }
-        public async Task<OperationResult<Comment>> Handle(CreateComment request, CancellationToken cancellationToken)
+        public async Task<OperationResult<Comment>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
         {
             try
             {

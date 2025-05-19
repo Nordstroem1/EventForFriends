@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace Application.Dtos.Event
 {
@@ -14,7 +15,7 @@ namespace Application.Dtos.Event
         public DateTime StartDate { get; set; }
         [Required]
         public DateTime EndDate { get; set; }
-        public string? ImageUrl { get; set; }
+        public IFormFile? Image { get; set; }
         public bool IsclosedEvent { get; set; }
         [MaxLength(50)]
         public string Location { get; set; }

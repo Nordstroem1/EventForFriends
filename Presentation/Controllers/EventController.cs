@@ -50,7 +50,7 @@ namespace Presentation.Controllers
                     return Unauthorized(OperationResult<User>.Fail($"{"User is not logged in. "} {userIdResponse.ErrorMessage}", "EventController"));
                 }
 
-                var result = await _mediator.Send(new CreateEventCommand(eventDto, userIdResponse.Data));
+                var result = await _mediator.Send(new CreateEventCommand(userIdResponse.Data,eventDto));
 
                 if (!result.Succeeded)
                 {

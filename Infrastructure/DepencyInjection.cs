@@ -3,6 +3,7 @@ using Domain.Models;
 using Infrastructure.Data;
 using Infrastructure.Databases;
 using Infrastructure.Seeder;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Application.Interfaces;
+
 
 namespace Infrastructure
 {
@@ -17,6 +20,10 @@ namespace Infrastructure
     {
         public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services, string connectionString, IConfiguration configuration)
         {
+            services.AddSingleton<IImageUploader, CloudinaryImageService>();
+
+            services.AddScoped<IMySqlContext>(provider => provider.GetRequiredService<mySqlDb>());
+
             services.AddDbContext<mySqlDb>(options =>
             {
                 options.UseSqlServer(connectionString);
