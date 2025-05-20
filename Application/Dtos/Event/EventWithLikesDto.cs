@@ -1,22 +1,19 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
+﻿using Application.Dtos.User;
 
 namespace Application.Dtos.Event
 {
-    public class CreateEventDto
+    public class EventWithLikesDto
     {
-        [Required(ErrorMessage = "The eventname is to long or short")]
-        [MaxLength(50)]
-        [MinLength(2)]
+        public string EventId { get; set; }
         public string EventName { get; set; }
-        [Required]
-        [MaxLength(700)]
         public string Description { get; set; }
+        public DateTime CreatedAt { get; set; }
         public DateTime StartDate { get; set; }
-        [Required]
         public DateTime EndDate { get; set; }
+        public string? ImageUrl { get; set; }
         public bool IsclosedEvent { get; set; }
-        [MaxLength(50)]
+        public string CreatedBy { get; set; }
         public string Location { get; set; }
+        public List<UserLikeDto> LikeList { get; set; }
     }
 }

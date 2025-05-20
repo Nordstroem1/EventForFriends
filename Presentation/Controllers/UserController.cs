@@ -32,7 +32,7 @@ namespace Presentation.Controllers
 
         [AllowAnonymous]
         [HttpPost("CreateUser")]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserDto user)
+        public async Task<IActionResult> CreateUser([FromForm] CreateUserDto user, IFormFile profilePicture)
         {
             try
             {
@@ -40,12 +40,12 @@ namespace Presentation.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var result = await _mediator.Send(new CreateUserCommand(user));
+                var result = await _mediator.Send(new CreateUserCommand(user, profilePicture));
 
                 if (result == null || !result.Succeeded)
                 {
                     _logger.LogError("Failed to create user");
-                    return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
+                    return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage});
                 }
 
                 return CreatedAtAction(nameof(GetUserById), new { id = result }, result.Data);
@@ -76,7 +76,7 @@ namespace Presentation.Controllers
                 if (result == null || !result.Succeeded)
                 {
                     _logger.LogError("Failed to delete user");
-                    return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
+                    return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage});
                 }
 
                 return Ok(result.Data);
@@ -98,16 +98,21 @@ namespace Presentation.Controllers
 
             var loggedInUserId = _getUserService.GetUserIdFromClaims(User);
 
+            if(loggedInUserId == null)
+            {
+                _logger.LogWarning("User not found.");
+                return BadRequest("User not found.");
+            }
 
             var result = await _mediator.Send(new UpdateUserCommand(loggedInUserId.Data, id, updatedUser));
 
             if (!result.Succeeded)
             {
                 _logger.LogError("Failed to update user");
-                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
+                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage});
             }
 
-            return Ok(new { result.Succeeded, result.Data });
+            return Ok(result.Data);
         }
 
         [Authorize(Roles = "user,admin,superadmin")]
@@ -125,10 +130,10 @@ namespace Presentation.Controllers
             if (result == null || !result.Succeeded)
             {
                 _logger.LogError("Failed to get user");
-                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
+                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage});
             }
 
-            return Ok(new { result.Succeeded, result.Data });
+            return Ok(result.Data);
         }
 
         [Authorize(Roles = "user,admin,superadmin")]
@@ -143,7 +148,7 @@ namespace Presentation.Controllers
                 return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
             }   
 
-            return Ok(new { result.Succeeded, result.Data });
+            return Ok(result.Data );
         }
 
         [AllowAnonymous]
@@ -160,7 +165,7 @@ namespace Presentation.Controllers
             if (!result.Succeeded)
             {
                 _logger.LogError("Failed to login");
-                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
+                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage});
             }
 
             return Ok(result.Data);
@@ -182,10 +187,10 @@ namespace Presentation.Controllers
             if (!result.Succeeded)
             {
                 _logger.LogError("Failed to change role");
-                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
+                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage});
             }
 
-            return Ok(new { result.Succeeded, result.Data });
+            return Ok(result.Data);
         }
     }
 }

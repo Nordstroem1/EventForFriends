@@ -11,13 +11,23 @@ namespace Application.MappingProfiles
     {
         public MappingProfile()
         {
-            CreateMap<Comment, CreateCommentDto>().ReverseMap();
+            CreateMap<CreateCommentDto, Comment>()
+                .ForMember(dest => dest.CommentId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()));
+
             CreateMap<User, UpdateUserDto>().ReverseMap();
             CreateMap<UpdateEventDto, Event>().ReverseMap();
 
+            CreateMap<User, UserLikeDto>()
+                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id));
+
+            CreateMap<Event, EventWithLikesDto>()
+                .ForMember(dest => dest.LikeList, opt => opt.MapFrom(src => src.LikeList));
+
             CreateMap<Event, CreateEventDto>().ReverseMap()
-            .ForMember(dest => dest.EventId, opt => opt
-            .MapFrom(src => Guid.NewGuid().ToString()));
+            .ForMember(dest => dest.EventId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
+            .ForMember(dest => dest.LikeList, opt => opt.MapFrom(src => new List<User>()));
+
 
             CreateMap<CreateUserDto, User>()
                      .ForMember(dest => dest.CreatedAt, opt => opt

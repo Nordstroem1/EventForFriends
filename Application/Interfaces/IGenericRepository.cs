@@ -10,7 +10,6 @@ namespace Domain.Interfaces
         Task<T> AddAsync(T entity);
         Task<T> UpdateAsync(T entity);
         Task<T> DeleteAsync(T entity);
-        Task<T> GetByIdWithIncludesAsync(string id, params Expression<Func<T, object>>[] includes);
-
+        Task<IEnumerable<T>> FindWithIncludes(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includes);
     }
 }

@@ -7,14 +7,11 @@ namespace Application.Dtos.Comment
         public string CommentContent { get; set; }
         public DateTime TimeSent { get; set; }
         [Required]
-        public string UserId { get; set; }
-        [Required]
         public string EventId { get; set; }
-        public CreateCommentDto(string commentId, string content, DateTime createdAt, string userId, string eventId)
+        public CreateCommentDto(string commentId, string content, DateTime createdAt, string eventId)
         {
             CommentContent = content;
             TimeSent = createdAt;
-            UserId = userId;
             EventId = eventId;
         }
     }

@@ -1,27 +1,23 @@
 ﻿using Application.Commands.EventCommands.LikesEvent;
+using Application.Interfaces;
 using Domain.Interfaces;
 using Domain.Models;
-using Infrastructure.Databases;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.EventCommands.LikeEvent
 {
-    public class LikeEventCommandHandler : IRequestHandler<LikeEventCommand, OperationResult<int>>
+    public class LikeEventCommandHandler(IMySqlContext mySqlDb, 
+                                         IGenericRepository<Event> eventRepository, 
+                                         UserManager<User> userRepository, 
+                                         ILogger<LikeEventCommandHandler> logger) : IRequestHandler<LikeEventCommand, OperationResult<int>>
     {
-        private readonly IGenericRepository<Event> _eventRepository;
-        private readonly UserManager<User> _userManager;
-        private readonly ILogger<LikeEventCommandHandler> _logger;
-        private readonly mySqlDb _mySqlDb;
+        private readonly IGenericRepository<Event> _eventRepository = eventRepository;
+        private readonly UserManager<User> _userManager = userRepository;
+        private readonly ILogger<LikeEventCommandHandler> _logger = logger;
+        private readonly IMySqlContext _mySqlDb = mySqlDb;
 
-        public LikeEventCommandHandler(mySqlDb mySqlDb, IGenericRepository<Event> eventRepository, UserManager<User> userRepository, ILogger<LikeEventCommandHandler> logger)
-        {
-            _eventRepository = eventRepository;
-            _userManager = userRepository;
-            _logger = logger;
-            _mySqlDb = mySqlDb;
-        }
         public async Task<OperationResult<int>> Handle(LikeEventCommand request, CancellationToken cancellationToken)
         {
             var eventEntity = await _eventRepository.GetByIdAsync(request.EventId);
@@ -55,10 +51,7 @@ namespace Application.Commands.EventCommands.LikeEvent
 
         private async Task<OperationResult<int>> RemoveLikeIfAlreadyLiked(Event eventEntity, User? foundUser)
         {
-            if (!_mySqlDb.Entry(eventEntity).Collection(e => e.LikeList).IsLoaded)
-            {
-                await _mySqlDb.Entry(eventEntity).Collection(e => e.LikeList).LoadAsync();
-            }
+            await _mySqlDb.LoadCollectionAsync(eventEntity, nameof(eventEntity.LikeList));
 
             var trackedUser = eventEntity.LikeList.FirstOrDefault(u => u.Id == foundUser.Id);
 

@@ -44,20 +44,16 @@ namespace Infrastructure.Data
             await _mySqlDb.SaveChangesAsync();
             return entity;
         }
-        public async Task<T> GetByIdWithIncludesAsync(string id, params Expression<Func<T, object>>[] includes)
+        public async Task<IEnumerable<T>> FindWithIncludes(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _dbSet;
 
-            var keyName = _mySqlDb.Model.FindEntityType(typeof(T))?.FindPrimaryKey()?.Properties
-            .Select(p => p.Name)
-            .FirstOrDefault();
-
-            if (keyName == null)
+            foreach (var include in includes)
             {
-                throw new InvalidOperationException($"No primary key defined for entity {typeof(T).Name}");
+                query = query.Include(include);
             }
 
-            return await query.FirstOrDefaultAsync(e => EF.Property<string>(e, keyName) == id);
+            return await query.Where(expression).ToListAsync();
         }
     }
 }

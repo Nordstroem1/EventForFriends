@@ -12,7 +12,8 @@ namespace Infrastructure.Databases
 
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(basePath)
-                .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.json", optional: true)
+                .AddUserSecrets<mySqlDbContextFactory>(optional: true)
                 .Build();
 
             var optionsBuilder = new DbContextOptionsBuilder<mySqlDb>();

@@ -1,4 +1,4 @@
-﻿using Application.Dtos.Event;
+﻿using Application.Interfaces;
 using AutoMapper;
 using Domain.Interfaces;
 using Domain.Models;
@@ -14,8 +14,10 @@ namespace Application.Commands.EventCommands.UpdateEvent
         private readonly ILogger<UpdateEventCommandHandler> _logger;
         private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
-        public UpdateEventCommandHandler(IGenericRepository<Event> eventRepository, ILogger<UpdateEventCommandHandler> logger, UserManager<User> userManager, IMapper mapper)
+        private readonly IPermissionChecker _permissionChecker;
+        public UpdateEventCommandHandler(IPermissionChecker permissionChecker, IGenericRepository<Event> eventRepository, ILogger<UpdateEventCommandHandler> logger, UserManager<User> userManager, IMapper mapper)
         {
+            _permissionChecker = permissionChecker;
             _eventRepository = eventRepository;
             _logger = logger;
             _userManager = userManager;
@@ -45,12 +47,9 @@ namespace Application.Commands.EventCommands.UpdateEvent
                     return OperationResult<Event>.Fail("Event not found", "Applicaton");
                 }
 
-                if(foundUser.Id != foundEvent.CreatedBy &&
-                    foundUser.Role.ToLower() == "superadmin" &&
-                    foundUser.Role.ToLower() == "admin")
+                if (!_permissionChecker.HasPermissionToModifyAsync(foundUser, foundEvent))
                 {
-                    _logger.LogError("User does not have permission to update this event");
-                    return OperationResult<Event>.Fail("User does not have permission to update this event", "Applicaton");
+                    return OperationResult<Event>.Fail("User does not have permission to delete this event", "Application");
                 }
 
                 var updatedEvent = _mapper.Map(request.UpdateEventDto, foundEvent);
