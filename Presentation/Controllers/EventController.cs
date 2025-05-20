@@ -34,7 +34,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost("createEvent")]
-        public async Task<IActionResult> CreateEvent([FromBody] CreateEventDto eventDto)
+        public async Task<IActionResult> CreateEvent([FromForm] CreateEventDto eventDto, IFormFile ImageFile)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace Presentation.Controllers
                     return Unauthorized(OperationResult<User>.Fail($"{"User is not logged in. "} {userIdResponse.ErrorMessage}", "EventController"));
                 }
 
-                var result = await _mediator.Send(new CreateEventCommand(userIdResponse.Data,eventDto));
+                var result = await _mediator.Send(new CreateEventCommand(userIdResponse.Data,eventDto, ImageFile));
 
                 if (!result.Succeeded)
                 {

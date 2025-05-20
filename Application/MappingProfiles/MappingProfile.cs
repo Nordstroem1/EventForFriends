@@ -25,6 +25,7 @@ namespace Application.MappingProfiles
 
             CreateMap<Event, CreateEventDto>().ReverseMap()
             .ForMember(dest => dest.EventId, opt => opt.MapFrom(src => Guid.NewGuid().ToString()))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
             .ForMember(dest => dest.LikeList, opt => opt.MapFrom(src => new List<User>()));
 
 

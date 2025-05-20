@@ -6,29 +6,20 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.UserCommands.Delete
 {
-    public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, OperationResult<string>>
+    public class DeleteUserCommandHandler(IImageHandler imageHandler, IPermissionChecker permissionChecker, UserManager<User> userManager, ILogger<DeleteUserCommandHandler> logger) : IRequestHandler<DeleteUserCommand, OperationResult<string>>
     {
-        private readonly UserManager<User> _userManager;
-        private readonly ILogger<DeleteUserCommandHandler> _logger;
-        private readonly IPermissionChecker _permissionChecker;
-        public DeleteUserCommandHandler(IPermissionChecker permissionChecker, UserManager<User> userManager, ILogger<DeleteUserCommandHandler> logger)
-        {
-            _permissionChecker = permissionChecker;
-            _logger = logger;
-            _userManager = userManager;
-        }
         public async Task<OperationResult<string>> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
         {
             if(string.IsNullOrEmpty(request.UserId))
             {
-                _logger.LogError("User ID is empty");
+                logger.LogError("User ID is empty");
                 return OperationResult<string>.Fail("User ID is empty", "Application");
             }
 
-            User LoggedInUser = await _userManager.FindByIdAsync(request.loggedinUser);
+            User LoggedInUser = await userManager.FindByIdAsync(request.loggedinUser);
             if (LoggedInUser == null)
             {
-                _logger.LogError("Could not find logged in user");
+                logger.LogError("Could not find logged in user");
                 return OperationResult<string>.Fail("Could not find logged in user", "Application");
             }
 
@@ -36,25 +27,35 @@ namespace Application.Commands.UserCommands.Delete
                 && LoggedInUser.Role.ToLower() != "admin" 
                 && LoggedInUser.Role.ToLower() != "superadmin")
             {
-                _logger.LogError("User does not have permission to delete user");
+                logger.LogError("User does not have permission to delete user");
                 return OperationResult<string>.Fail("User does not have permission to delete user", "Application");
             }
 
-            User foundUser = await _userManager.FindByIdAsync(request.UserId);
+            User foundUser = await userManager.FindByIdAsync(request.UserId);
 
             if(foundUser == null)
             {
-                _logger.LogError("User not found");
+                logger.LogError("User not found");
                 return OperationResult<string>.Fail("User not found", "Application");
             }
 
-            var result = await _userManager.DeleteAsync(foundUser);
+            if(!string.IsNullOrWhiteSpace(foundUser.ProfilePicture))
+            {
+                var imageDeletion = await imageHandler.DeleteImageAsync(foundUser.ProfilePicture);
+                if (!imageDeletion.Succeeded)
+                {
+                    logger.LogError("Could not delete image: " + imageDeletion.ErrorMessage);
+                    return OperationResult<string>.Fail("Could not delete image", "Application");
+                }
+            }
+
+            var result = await userManager.DeleteAsync(foundUser);
             if (!result.Succeeded)
             {
-                _logger.LogError("Failed to delete user");
+                logger.LogError("Failed to delete user");
                 return OperationResult<string>.Fail("Failed to delete user", "Application");
             }
-            _logger.LogInformation("Successfully deleted user");
+            logger.LogInformation("Successfully deleted user");
 
             return OperationResult<string>.Success("Successfully deleted user.");
         }

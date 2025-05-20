@@ -8,8 +8,9 @@ namespace Domain.Models
         public List<Event> Events { get; set; }
         public List<Comment> Comments{ get; set; }
         public string Role { get; set; }
+        public string ProfilePicture { get; set; }
 
-        public User(string userName, string email, int phoneNumber, string password, DateTime createdAt, string role)
+        public User(string userName, string email, int phoneNumber, string password, DateTime createdAt, string role, string profilePicture)
         {
             UserName = userName;
             Email = email;
@@ -20,6 +21,7 @@ namespace Domain.Models
             LockoutEnabled = true;
             LockoutEnd = null;
             Role = role;
+            ProfilePicture = profilePicture;
         }
         public User() { }
     }

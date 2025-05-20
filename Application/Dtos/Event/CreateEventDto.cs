@@ -15,7 +15,6 @@ namespace Application.Dtos.Event
         public DateTime StartDate { get; set; }
         [Required]
         public DateTime EndDate { get; set; }
-        public IFormFile? Image { get; set; }
         public bool IsclosedEvent { get; set; }
         [MaxLength(50)]
         public string Location { get; set; }

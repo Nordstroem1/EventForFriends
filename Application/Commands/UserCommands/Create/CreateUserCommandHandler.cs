@@ -3,62 +3,63 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
+using Application.Interfaces;
 
 namespace Application.Commands.UserCommands.Create
 {
-    public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, OperationResult<User>>
+    public class CreateUserCommandHandler(IImageHandler imageHandler, UserManager<User> userManager, RoleManager<IdentityRole> roleManager, ILogger<CreateUserCommandHandler> logger, IMapper mapper) : IRequestHandler<CreateUserCommand, OperationResult<User>>
     {
-        private readonly UserManager<User> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly ILogger<CreateUserCommandHandler> _logger;
-        private readonly IMapper _mapper;
-        public CreateUserCommandHandler(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, ILogger<CreateUserCommandHandler> logger, IMapper mapper)
-        {
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _logger = logger;
-            _mapper = mapper;
-        }
         public async Task<OperationResult<User>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                var createdUser = _mapper.Map<User>(request.UserDto);
+
+                var uploadImageResult = await imageHandler.UploadImageAsync(request.ProfilePicture, "User");
+
+                if(uploadImageResult.ErrorMessage.Length > 0 || uploadImageResult == null)
+                {
+                    logger.LogError("Image upload failed.");
+                    return OperationResult<User>.Fail("Image upload failed", "CreateUserCommandHandler");
+                }
+
+                var createdUser = mapper.Map<User>(request.UserDto);
 
                 if (createdUser.Role != "user" || string.IsNullOrEmpty(createdUser.Role))
                 {
                     createdUser.Role = "user";
                 }
 
-                if(!await _roleManager.RoleExistsAsync(createdUser.Role))
+                if(!await roleManager.RoleExistsAsync(createdUser.Role))
                 {
-                    var createRoleResult = await _roleManager.CreateAsync(new IdentityRole(createdUser.Role));
+                    var createRoleResult = await roleManager.CreateAsync(new IdentityRole(createdUser.Role));
 
                     if (!createRoleResult.Succeeded)
                     {
-                        _logger.LogError($"Error when creating a user role: ");
+                        logger.LogError($"Error when creating a user role: ");
 
                         return OperationResult<User>.Fail($"Failed to create user role: ", "Application");
                     }
                 }
 
-                var userResult = await _userManager.CreateAsync(createdUser, request.UserDto.Password);
-                await _userManager.UpdateAsync(createdUser); 
+                createdUser.ProfilePicture = uploadImageResult.Data;
+                var userResult = await userManager.CreateAsync(createdUser, request.UserDto.Password);
+               
+                await userManager.UpdateAsync(createdUser); 
 
                 if (!userResult.Succeeded)
                 {
                     var errors = string.Join(", ", userResult.Errors.Select(e => e.Description));
-                    _logger.LogError($"Error when creating a user: {errors}");
+                    logger.LogError($"Error when creating a user: {errors}");
 
                     return OperationResult<User>.Fail($"Failed to create user: {errors}", "Application");
                 }
 
-                var roleResult = await _userManager.AddToRoleAsync(createdUser, createdUser.Role);
+                var roleResult = await userManager.AddToRoleAsync(createdUser, createdUser.Role);
 
                 if (!roleResult.Succeeded)
                 {
                     var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
-                    _logger.LogError($"Error when adding user to role: {errors}");
+                    logger.LogError($"Error when adding user to role: {errors}");
                     return OperationResult<User>.Fail($"Failed to add user to role: {errors}", "Application");
                 }
 

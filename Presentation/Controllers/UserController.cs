@@ -32,7 +32,7 @@ namespace Presentation.Controllers
 
         [AllowAnonymous]
         [HttpPost("CreateUser")]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserDto user)
+        public async Task<IActionResult> CreateUser([FromForm] CreateUserDto user, IFormFile profilePicture)
         {
             try
             {
@@ -40,7 +40,7 @@ namespace Presentation.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-                var result = await _mediator.Send(new CreateUserCommand(user));
+                var result = await _mediator.Send(new CreateUserCommand(user, profilePicture));
 
                 if (result == null || !result.Succeeded)
                 {

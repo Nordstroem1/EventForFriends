@@ -20,7 +20,7 @@ namespace Infrastructure
     {
         public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services, string connectionString, IConfiguration configuration)
         {
-            services.AddSingleton<IImageUploader, CloudinaryImageService>();
+            services.AddSingleton<IImageHandler, CloudinaryImageService>();
 
             services.AddScoped<IMySqlContext>(provider => provider.GetRequiredService<mySqlDb>());
 
