@@ -17,6 +17,7 @@ namespace Application.Commands.UserCommands.Delete
             }
 
             User LoggedInUser = await userManager.FindByIdAsync(request.loggedinUser);
+
             if (LoggedInUser == null)
             {
                 logger.LogError("Could not find logged in user");
