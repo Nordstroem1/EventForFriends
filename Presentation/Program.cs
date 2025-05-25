@@ -5,9 +5,9 @@ using Infrastructure.Databases;
 using Infrastructure.Seeder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddUserSecrets<Program>();
 
 builder.Configuration.AddUserSecrets<Program>();
 builder.Services.AddControllers();
