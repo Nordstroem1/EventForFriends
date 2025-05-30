@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Application.Interfaces;
+using AutoMapper;
 using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -6,68 +7,81 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Commands.UserCommands.Update
 {
-    public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, OperationResult<User>>
+    public class UpdateUserCommandHandler(IImageHandler imageHandler, UserManager<User> userManager, RoleManager<IdentityRole> roleManager, ILogger<UpdateUserCommandHandler> logger, IMapper mapper) : IRequestHandler<UpdateUserCommand, OperationResult<User>>
     {
-        private readonly UserManager<User> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly ILogger<UpdateUserCommandHandler> _logger;
-        private readonly IMapper _mapper;
-        public UpdateUserCommandHandler(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, ILogger<UpdateUserCommandHandler> logger, IMapper mapper)
-        {
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _logger = logger;
-            _mapper = mapper;
-        }
         public async Task<OperationResult<User>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
         {
             try
             {
                 if (request.UpdatedUser == null)
                 {
-                    _logger.LogError("User is null");
+                    logger.LogError("User is null");
                    
                     return OperationResult<User>.Fail("User is null", "Application");
                 }
 
-                var loggedInUser = await _userManager.FindByIdAsync(request.LoggedInUser);
-                var foundUser = await _userManager.FindByIdAsync(request.UserId.ToString());
+                var loggedInUser = await userManager.FindByIdAsync(request.LoggedInUser);
+                var foundUser = await userManager.FindByIdAsync(request.UserId.ToString());
 
                 if (foundUser == null)
                 {
-                    _logger.LogError("User not found");
+                    logger.LogError("User not found");
                     return OperationResult<User>.Fail("User not found", "Application");
                 }
                 if(loggedInUser == null)
                 {
-                    _logger.LogError("Logged in user not found");
+                    logger.LogError("Logged in user not found");
                     return OperationResult<User>.Fail("Logged in user not found", "Application");
                 }
 
-                _mapper.Map(request.UpdatedUser, foundUser);
+
+                if (!string.IsNullOrWhiteSpace(request.UpdatedUser.UserName))
+                    foundUser.UserName = request.UpdatedUser.UserName;
+
+                if (!string.IsNullOrWhiteSpace(request.UpdatedUser.Email))
+                    foundUser.Email = request.UpdatedUser.Email;
+
+                if (request.UpdatedUser.PhoneNumber.HasValue)
+                    foundUser.PhoneNumber = request.UpdatedUser.PhoneNumber.ToString();
+
+                if (!string.IsNullOrWhiteSpace(request.UpdatedUser.Password))
+                    foundUser.PasswordHash = userManager.PasswordHasher.HashPassword(foundUser, request.UpdatedUser.Password);
+
+                if (request.UpdatedUser.ProfilePicture != null)
+                {
+                   var deleteResult =   await imageHandler.DeleteImageAsync(foundUser.ProfilePicture);
+                   var uploadResult = await imageHandler.UploadImageAsync(request.UpdatedUser.ProfilePicture, "User");
+
+                    if (!deleteResult.Succeeded || uploadResult.ErrorMessage.Length > 0 || uploadResult == null)
+                    {
+                        logger.LogError("Image upload failed.");
+                        return OperationResult<User>.Fail("Image upload failed", "UpdateUserCommandHandler");
+                    }
+                    foundUser.ProfilePicture = uploadResult.Data;
+                }
 
                 if (!string.IsNullOrEmpty(request.UpdatedUser.Password))
                 {
-                    foundUser.PasswordHash = _userManager.PasswordHasher.HashPassword(foundUser, request.UpdatedUser.Password);
+                    foundUser.PasswordHash = userManager.PasswordHasher.HashPassword(foundUser, request.UpdatedUser.Password);
                 }
 
                 if (loggedInUser.Id != request.UserId
                 && loggedInUser.Role.ToLower() != "admin"
                 && loggedInUser.Role.ToLower() != "superadmin")
                 {
-                    _logger.LogError("User does not have permission to delete user");
+                    logger.LogError("User does not have permission to delete user");
                     return OperationResult<User>.Fail("User does not have permission to delete user", "Application");
                 }
 
-                var result = await _userManager.UpdateAsync(foundUser);
+                var result = await userManager.UpdateAsync(foundUser);
 
                 if (!result.Succeeded)
                 {
-                    _logger.LogError("Failed to update user");
+                    logger.LogError("Failed to update user");
                     return OperationResult<User>.Fail("Failed to update user", "Application");
                 }
 
-                _logger.LogInformation("User updated successfully");
+                logger.LogInformation("User updated successfully");
                 return OperationResult<User>.Success(foundUser);
             }
             catch
