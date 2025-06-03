@@ -1,5 +1,4 @@
-﻿using Domain.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Application.Dtos.User
 {
@@ -13,18 +12,13 @@ namespace Application.Dtos.User
         [Required(ErrorMessage = "Password is required.")]
         [MinLength(6, ErrorMessage = "Password must be at least 6 characters.")]
         public string Password { get; set; }
-        [Phone]
-        [Required(ErrorMessage = "Phonenumber is required")]
-        public string PhoneNumber { get; set; }
-        public string Role { get; set; }
-
-        public CreateUserDto(string userName, string email, string password, string phoneNumber, string role)
+        public string LivingLocation { get; set; }
+        public CreateUserDto(string userName, string email, string password, string livinglocation)
         {
             UserName = userName;
             Email = email;
             Password = password;
-            PhoneNumber = phoneNumber;
-            Role = role;
+            LivingLocation = livinglocation;
         }
         public CreateUserDto() { }
     }

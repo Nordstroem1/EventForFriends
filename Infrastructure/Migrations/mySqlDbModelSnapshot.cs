@@ -84,7 +84,7 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsclosedEvent")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Location")
+                    b.Property<string>("LivingLocation")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
