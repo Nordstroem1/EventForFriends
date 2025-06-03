@@ -45,7 +45,23 @@ builder.Services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<mySqlDb>()
                 .AddDefaultTokenProviders();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowedOrigins", policy =>
+    {
+        policy.WithOrigins(
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "http://localhost:5175"
+            //prod environment URls
+        )
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
+
 
 using (var scope = app.Services.CreateScope())
 {
@@ -56,6 +72,7 @@ using (var scope = app.Services.CreateScope())
 
 if (app.Environment.IsDevelopment())
 {
+    app.UseCors("AllowedOrigins");
     app.UseSwagger();
     app.UseSwaggerUI();
 
@@ -71,7 +88,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -23,15 +23,11 @@ namespace Application.Commands.UserCommands.Create
                 }
 
                 var createdUser = mapper.Map<User>(request.UserDto);
-
-                if (createdUser.Role != "user" || string.IsNullOrEmpty(createdUser.Role))
-                {
-                    createdUser.Role = "user";
-                }
+                createdUser.Role = "user";
 
                 if(!await roleManager.RoleExistsAsync(createdUser.Role))
                 {
-                    var createRoleResult = await roleManager.CreateAsync(new IdentityRole(createdUser.Role));
+                    var createRoleResult = await roleManager.CreateAsync(new IdentityRole("user"));
 
                     if (!createRoleResult.Succeeded)
                     {
