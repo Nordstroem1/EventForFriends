@@ -14,14 +14,6 @@ namespace Application.Commands.UserCommands.Create
             try
             {
 
-                var uploadImageResult = await imageHandler.UploadImageAsync(request.ProfilePicture, "User");
-
-                if(uploadImageResult.ErrorMessage.Length > 0 || uploadImageResult == null)
-                {
-                    logger.LogError("Image upload failed.");
-                    return OperationResult<User>.Fail("Image upload failed", "CreateUserCommandHandler");
-                }
-
                 var createdUser = mapper.Map<User>(request.UserDto);
                 createdUser.Role = "user";
 
@@ -37,7 +29,15 @@ namespace Application.Commands.UserCommands.Create
                     }
                 }
 
+                var uploadImageResult = await imageHandler.UploadImageAsync(request.ProfilePicture, "User");
+
+                if (uploadImageResult.ErrorMessage.Length > 0 || uploadImageResult == null)
+                {
+                    logger.LogError("Image upload failed.");
+                    return OperationResult<User>.Fail("Image upload failed", "CreateUserCommandHandler");
+                }
                 createdUser.ProfilePicture = uploadImageResult.Data;
+                
                 var userResult = await userManager.CreateAsync(createdUser, request.UserDto.Password);
                
                 await userManager.UpdateAsync(createdUser); 
@@ -46,8 +46,9 @@ namespace Application.Commands.UserCommands.Create
                 {
                     var errors = string.Join(", ", userResult.Errors.Select(e => e.Description));
                     logger.LogError($"Error when creating a user: {errors}");
+                    await imageHandler.DeleteImageAsync(createdUser.ProfilePicture);
 
-                    return OperationResult<User>.Fail($"Failed to create user: {errors}", "Application");
+                    return OperationResult<User>.Fail(errors, "Application");
                 }
 
                 var roleResult = await userManager.AddToRoleAsync(createdUser, createdUser.Role);

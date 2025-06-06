@@ -45,7 +45,7 @@ namespace Presentation.Controllers
                 if (result == null || !result.Succeeded)
                 {
                     _logger.LogError("Failed to create user");
-                    return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage});
+                    return BadRequest(result.ErrorMessage);
                 }
 
                 return CreatedAtAction(nameof(GetUserById), new { id = result }, result.Data);
