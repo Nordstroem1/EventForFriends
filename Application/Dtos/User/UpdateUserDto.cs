@@ -1,26 +1,17 @@
-﻿using Domain.Models;
-using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace Application.Dtos.User
 {
     public class UpdateUserDto
     {
-        [Required]
-        public string? UserName { get; set; }
-        [Required]
-        public string? Email { get; set; }
-        [Required]
-        public string? Password { get; set; }
-        [Required]
-        public int? PhoneNumber { get; set; }
+        public string? UserName { get; set; } = string.Empty;
+        public string Location { get; set; } = string.Empty;
         public IFormFile? ProfilePicture { get; set; }
-        public UpdateUserDto(string userName, string email, string password, int phoneNumber)
+        public UpdateUserDto(string userName, string location, IFormFile profilePic)
         {
+            Location = location;
             UserName = userName;
-            Email = email;
-            Password = password;
-            PhoneNumber = phoneNumber;
+            ProfilePicture = profilePic;
         }
     }
 }

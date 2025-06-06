@@ -34,18 +34,8 @@ namespace Application.Commands.UserCommands.Update
                     return OperationResult<User>.Fail("Logged in user not found", "Application");
                 }
 
-
                 if (!string.IsNullOrWhiteSpace(request.UpdatedUser.UserName))
                     foundUser.UserName = request.UpdatedUser.UserName;
-
-                if (!string.IsNullOrWhiteSpace(request.UpdatedUser.Email))
-                    foundUser.Email = request.UpdatedUser.Email;
-
-                if (request.UpdatedUser.PhoneNumber.HasValue)
-                    foundUser.PhoneNumber = request.UpdatedUser.PhoneNumber.ToString();
-
-                if (!string.IsNullOrWhiteSpace(request.UpdatedUser.Password))
-                    foundUser.PasswordHash = userManager.PasswordHasher.HashPassword(foundUser, request.UpdatedUser.Password);
 
                 if (request.UpdatedUser.ProfilePicture != null)
                 {
@@ -58,11 +48,6 @@ namespace Application.Commands.UserCommands.Update
                         return OperationResult<User>.Fail("Image upload failed", "UpdateUserCommandHandler");
                     }
                     foundUser.ProfilePicture = uploadResult.Data;
-                }
-
-                if (!string.IsNullOrEmpty(request.UpdatedUser.Password))
-                {
-                    foundUser.PasswordHash = userManager.PasswordHasher.HashPassword(foundUser, request.UpdatedUser.Password);
                 }
 
                 if (loggedInUser.Id != request.UserId
