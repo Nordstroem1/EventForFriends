@@ -10,13 +10,15 @@ namespace Application.Dtos.User
         [EmailAddress]
         public string Email { get; set; }
         public string Password { get; set; }
-        public string LivingLocation { get; set; }
-        public CreateUserDto(string userName, string email, string password, string livinglocation)
+        public string Longitude { get; set; } = string.Empty;
+        public string Latitude { get; set; } = string.Empty;
+        public CreateUserDto(string userName, string email, string password, string longitude, string latitude)
         {
             UserName = userName;
             Email = email;
             Password = password;
-            LivingLocation = livinglocation;
+            Longitude = longitude;
+            Latitude = latitude;
         }
         public CreateUserDto() { }
     }
