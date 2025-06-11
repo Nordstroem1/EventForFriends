@@ -91,7 +91,7 @@ namespace Presentation.Controllers
             }
         }
 
-        [Authorize(Roles = "admin,superadmin")]
+        [Authorize(Roles = "admin,superadmin,user")]
         [HttpGet("{EventId}")]
         public async Task<IActionResult> GetAllComments(string EventId)
         {

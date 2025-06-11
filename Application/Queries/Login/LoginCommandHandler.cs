@@ -5,18 +5,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Application.Queries.Login
 {
-    public class LoginCommandHandler : IRequestHandler<LoginCommand, OperationResult<string>>
+    public class LoginCommandHandler(UserManager<User> userManager, SignInManager<User> signInManager, TokenHelper tokenHelper) : IRequestHandler<LoginCommand, OperationResult<string>>
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
-        private readonly TokenHelper _tokenHelper;
-
-        public LoginCommandHandler(UserManager<User> userManager, SignInManager<User> signInManager, TokenHelper tokenHelper)
-        {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _tokenHelper = tokenHelper;
-        }
         public async Task<OperationResult<string>> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
             try
@@ -29,7 +19,7 @@ namespace Application.Queries.Login
                     return OperationResult<string>.Fail("User not found", "LoginCommandHandler");
                 }
 
-                var authenticationResult = _tokenHelper.AuthenticateUser(foundUser.Id);
+                var authenticationResult = tokenHelper.AuthenticateUser(foundUser.Id);
 
                 if (!authenticationResult.IsCompletedSuccessfully)
                 {
@@ -41,7 +31,7 @@ namespace Application.Queries.Login
                     return OperationResult<string>.Fail("User is locked out", "LoginCommandHandler");
                 }
 
-                var result = await _signInManager.CheckPasswordSignInAsync(foundUser, request.LoginDto.Password, true);
+                var result = await signInManager.CheckPasswordSignInAsync(foundUser, request.LoginDto.Password, true);
 
                 if (!result.Succeeded)
                 {
@@ -53,8 +43,8 @@ namespace Application.Queries.Login
                     return OperationResult<string>.Fail("Invalid password", "LoginCommandHandler");
                 }
 
-                await _userManager.ResetAccessFailedCountAsync(foundUser);
-                var token = await _tokenHelper.GenerateToken(foundUser);
+                await userManager.ResetAccessFailedCountAsync(foundUser);
+                var token = await tokenHelper.GenerateToken(foundUser);
 
                 return OperationResult<string>.Success(token);
             }
@@ -70,18 +60,18 @@ namespace Application.Queries.Login
 
             if (request.LoginDto.Email != null)
             {
-                foundUser = await _userManager.FindByNameAsync(request.LoginDto.UserName);
+                foundUser = await userManager.FindByEmailAsync(request.LoginDto.Email);
             }
             else if (request.LoginDto.UserName != null)
             {
-                foundUser = await _userManager.FindByEmailAsync(request.LoginDto.Email);
+                foundUser = await userManager.FindByNameAsync(request.LoginDto.UserName);
             }
 
             return foundUser;
         }
         public async Task<bool> IsUserLockedOut(User user)
         {
-            if (await _userManager.IsLockedOutAsync(user))
+            if (await userManager.IsLockedOutAsync(user))
             {
                 return true;
             }

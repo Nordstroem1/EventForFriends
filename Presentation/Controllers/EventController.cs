@@ -4,13 +4,13 @@ using Application.Commands.EventCommands.LikesEvent;
 using Application.Commands.EventCommands.UpdateEvent;
 using Application.Dtos.Event;
 using Application.Interfaces;
+using Application.Queries.EventQueries.GetAllEvents;
 using Application.Queries.EventQueries.GetEventById;
 using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
 namespace Presentation.Controllers
@@ -34,7 +34,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost("createEvent")]
-        public async Task<IActionResult> CreateEvent([FromForm] CreateEventDto eventDto, IFormFile ImageFile)
+        public async Task<IActionResult> CreateEvent([FromForm] CreateEventDto eventDto, IFormFile? ImageFile)
         {
             try
             {
@@ -152,6 +152,7 @@ namespace Presentation.Controllers
 
             return Ok(result.Data);
         }
+
         [HttpGet("getEventById")]
         public async Task<IActionResult> GetEventById(string eventId)
         {
@@ -167,6 +168,51 @@ namespace Presentation.Controllers
                 return BadRequest(result.ErrorMessage);
             }
             return Ok(result.Data);
+        }
+
+        [HttpGet("getAll")]
+        public async Task<IActionResult> GetAllEvents()
+        {
+            try
+            {
+                var result = await _mediator.Send(new GetAllEventsQuery());
+
+                if (!result.Succeeded)
+                {
+                    return BadRequest(result.ErrorMessage);
+                }
+
+                return Ok(result.Data);
+            }
+            catch
+            {
+                return BadRequest("Server Error");
+            } 
+        }
+
+        [HttpGet("getAllWithinDistance")]
+        public async Task<IActionResult> GetAllEventsBasedOnDistance(int distansBetweenEventAndUser)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrWhiteSpace(userId)) 
+                    return BadRequest("Could not find logged in user.");
+
+                var result = await _mediator.Send(new GetAllEventsWithinAreaQuery(distansBetweenEventAndUser,userId));
+
+                if (!result.Succeeded)
+                {
+                    return BadRequest(result.ErrorMessage);
+                }
+
+                return Ok(result.Data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Somewhing went wring while fetching events.");
+            }
         }
     }
 }

@@ -9,8 +9,10 @@ namespace Domain.Models
         public List<Comment> Comments{ get; set; }
         public string Role { get; set; }
         public string ProfilePicture { get; set; }
+        public double Longitude { get; set; } 
+        public double Latitude { get; set; } 
 
-        public User(string userName, string email, int phoneNumber, string password, DateTime createdAt, string role, string profilePicture)
+        public User(string userName, string email, int phoneNumber, string password, DateTime createdAt, string role, string profilePicture, double longitude, double latitude)
         {
             UserName = userName;
             Email = email;
@@ -22,6 +24,8 @@ namespace Domain.Models
             LockoutEnd = null;
             Role = role;
             ProfilePicture = profilePicture;
+            Longitude = longitude;
+            Latitude = latitude;
         }
         public User() { }
     }

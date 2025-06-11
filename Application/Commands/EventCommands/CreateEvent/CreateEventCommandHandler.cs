@@ -36,12 +36,14 @@ namespace Application.Commands.EventCommands.CreateEvent
                     return OperationResult<Event>.Fail("Image upload failed", "CreateEventCommandHandler");
                 }
 
-                var newEvent = mapper.Map<Event>(request);
+                var newEvent = mapper.Map<Event>(request.EventDto);
                 newEvent.ImageUrl = imageUploadResponse.Data;
 
-                if (request.ImageFile == null)
+                if(newEvent is null)
                 {
-                    newEvent.ImageUrl = "no image";
+                    await imageHandler.DeleteImageAsync(newEvent.ImageUrl);
+                    logger.LogError("Event mapping failed");
+                    return OperationResult<Event>.Fail("Event mapping failed", "CreateEventCommandHandler");
                 }
                 newEvent.CreatedBy = foundUser.Id;
 
