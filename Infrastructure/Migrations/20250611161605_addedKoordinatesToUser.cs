@@ -10,10 +10,12 @@ namespace Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "LivingLocation",
-                table: "Events",
-                newName: "Longitude");
+            migrationBuilder.AddColumn<string>(
+              name: "Longitude",
+              table: "Events",
+              type: "nvarchar(max)",
+              nullable: false,
+              defaultValue: "");
 
             migrationBuilder.AddColumn<string>(
                 name: "Latitude",

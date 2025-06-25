@@ -17,7 +17,7 @@ namespace Application.Commands.UserCommands.Update
                 {
                     logger.LogError("User is null");
                    
-                    return OperationResult<User>.Fail("User is null", "Application");
+                    return OperationResult<User>.Fail("User is null", "UpdateUserCommandHandler");
                 }
 
                 var loggedInUser = await userManager.FindByIdAsync(request.LoggedInUser);
@@ -26,21 +26,32 @@ namespace Application.Commands.UserCommands.Update
                 if (foundUser == null)
                 {
                     logger.LogError("User not found");
-                    return OperationResult<User>.Fail("User not found", "Application");
+                    return OperationResult<User>.Fail("User not found", "UpdateUserCommandHandler");
                 }
                 if(loggedInUser == null)
                 {
                     logger.LogError("Logged in user not found");
-                    return OperationResult<User>.Fail("Logged in user not found", "Application");
+                    return OperationResult<User>.Fail("Logged in user not found", "UpdateUserCommandHandler");
+                }
+                
+                if (!string.IsNullOrWhiteSpace(request.UpdatedUser.UserName))
+                {
+                    if (!string.Equals(foundUser.UserName, request.UpdatedUser.UserName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var existingUser = await userManager.FindByNameAsync(request.UpdatedUser.UserName);
+                        if (existingUser != null && existingUser.Id != foundUser.Id)
+                        {
+                            logger.LogError("Username is already taken or invalid");
+                            return OperationResult<User>.Fail("Username is already taken or invalid", "UpdateUserCommandHandler");
+                        }
+                        foundUser.UserName = request.UpdatedUser.UserName;
+                    }
                 }
 
-                if (!string.IsNullOrWhiteSpace(request.UpdatedUser.UserName))
-                    foundUser.UserName = request.UpdatedUser.UserName;
-
-                if (request.UpdatedUser.ProfilePicture != null)
+                if (request.UpdatedUser.NewProfilePicture is not null)
                 {
-                   var deleteResult =   await imageHandler.DeleteImageAsync(foundUser.ProfilePicture);
-                   var uploadResult = await imageHandler.UploadImageAsync(request.UpdatedUser.ProfilePicture, "User");
+                    var deleteResult = await imageHandler.DeleteImageAsync(foundUser.ProfilePicture);
+                    var uploadResult = await imageHandler.UploadImageAsync(request.UpdatedUser.NewProfilePicture, "User");
 
                     if (!deleteResult.Succeeded || uploadResult.ErrorMessage.Length > 0 || uploadResult == null)
                     {
@@ -49,13 +60,9 @@ namespace Application.Commands.UserCommands.Update
                     }
                     foundUser.ProfilePicture = uploadResult.Data;
                 }
-
-                if (loggedInUser.Id != request.UserId
-                && loggedInUser.Role.ToLower() != "admin"
-                && loggedInUser.Role.ToLower() != "superadmin")
+                else
                 {
-                    logger.LogError("User does not have permission to delete user");
-                    return OperationResult<User>.Fail("User does not have permission to delete user", "Application");
+                    foundUser.ProfilePicture = request.UpdatedUser.OldImageUrl!;
                 }
 
                 var result = await userManager.UpdateAsync(foundUser);
@@ -63,7 +70,7 @@ namespace Application.Commands.UserCommands.Update
                 if (!result.Succeeded)
                 {
                     logger.LogError("Failed to update user");
-                    return OperationResult<User>.Fail("Failed to update user", "Application");
+                    return OperationResult<User>.Fail("Failed to update user", "UpdateUserCommandHandler");
                 }
 
                 logger.LogInformation("User updated successfully");
@@ -71,7 +78,7 @@ namespace Application.Commands.UserCommands.Update
             }
             catch
             {
-                return OperationResult<User>.Fail("Unexpected error", "Application");
+                return OperationResult<User>.Fail("Unexpected error", "UpdateUserCommandHandler");
             }
         }
     }

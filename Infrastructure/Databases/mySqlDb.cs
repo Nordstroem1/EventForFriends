@@ -6,7 +6,7 @@ using Application.Interfaces;
 
 namespace Infrastructure.Databases
 {
-    public class mySqlDb : IdentityDbContext<User, IdentityRole, string>,IMySqlContext
+    public class mySqlDb : IdentityDbContext<User, IdentityRole, string>, IMySqlContext
     {
         public mySqlDb(DbContextOptions<mySqlDb> options) : base(options) { }
         public DbSet<User> Users { get; set; }
@@ -15,7 +15,8 @@ namespace Infrastructure.Databases
 
         public Task LoadCollectionAsync<TEntity>(TEntity entity, string collectionName) where TEntity : class
         {
-            throw new NotImplementedException();
+            var entry = this.Entry(entity);
+            return entry.Collection(collectionName).LoadAsync();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

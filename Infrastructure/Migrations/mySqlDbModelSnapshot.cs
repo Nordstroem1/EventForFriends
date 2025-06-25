@@ -149,7 +149,7 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ProfilePicture")
+                    b.Property<string>("NewProfilePicture")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

@@ -1,9 +1,12 @@
-﻿using Domain.Models;
+﻿using Application.Dtos.User;
+using Application.Interfaces;
+using AutoMapper;
+using Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using AutoMapper;
-using Application.Interfaces;
+using System.Globalization;
+using System.Transactions;
 
 namespace Application.Commands.UserCommands.Create
 {
@@ -13,8 +16,10 @@ namespace Application.Commands.UserCommands.Create
         {
             try
             {
+                ParseCoordinates(request.UserDto);
 
                 var createdUser = mapper.Map<User>(request.UserDto);
+
                 createdUser.Role = "user";
 
                 if(!await roleManager.RoleExistsAsync(createdUser.Role))
@@ -66,6 +71,18 @@ namespace Application.Commands.UserCommands.Create
             {
                 throw new Exception("Unexpected error." + ex.Message);
             }
+        }
+
+        private void ParseCoordinates(CreateUserDto userDto)
+        {
+            string latNormalized = userDto.Latitude?.Replace(',', '.');
+            string lonNormalized = userDto.Longitude?.Replace(',', '.');
+
+            if (!double.TryParse(latNormalized, NumberStyles.Any, CultureInfo.InvariantCulture, out double latitude))
+                throw new ArgumentException("Could not change latitude format.");
+
+            if (!double.TryParse(lonNormalized, NumberStyles.Any, CultureInfo.InvariantCulture, out double longitude))
+                throw new ArgumentException("Could not change longitude format.");
         }
     }
 }
