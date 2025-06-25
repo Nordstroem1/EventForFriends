@@ -11,6 +11,7 @@ using Application.Queries.UserQueries.GetAllUsers;
 using Application.Commands.UserCommands.ChangeRole;
 using Microsoft.AspNetCore.Authorization;
 using Application.Interfaces;
+using Application.Queries.UserQueries.GetLoggedInUser;
 
 namespace Presentation.Controllers
 {
@@ -71,12 +72,12 @@ namespace Presentation.Controllers
 
                 var loggedInUser = _getUserService.GetUserIdFromClaims(User);
 
-                var result = await _mediator.Send(new DeleteUserCommand(loggedInUser.Data,id));
+                var result = await _mediator.Send(new DeleteUserCommand(loggedInUser.Data, id));
 
                 if (result == null || !result.Succeeded)
                 {
                     _logger.LogError("Failed to delete user");
-                    return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage});
+                    return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage });
                 }
 
                 return Ok(result.Data);
@@ -89,7 +90,8 @@ namespace Presentation.Controllers
 
         [Authorize(Roles = "user,admin,superadmin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(string id,[FromBody] UpdateUserDto updatedUser)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UpdateUser(string id, [FromForm] UpdateUserDto updatedUser)
         {
             if (!ModelState.IsValid)
             {
@@ -98,7 +100,7 @@ namespace Presentation.Controllers
 
             var loggedInUserId = _getUserService.GetUserIdFromClaims(User);
 
-            if(loggedInUserId == null)
+            if (loggedInUserId == null)
             {
                 _logger.LogWarning("User not found.");
                 return BadRequest("User not found.");
@@ -109,7 +111,7 @@ namespace Presentation.Controllers
             if (!result.Succeeded)
             {
                 _logger.LogError("Failed to update user");
-                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage});
+                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage });
             }
 
             return Ok(result.Data);
@@ -130,7 +132,7 @@ namespace Presentation.Controllers
             if (result == null || !result.Succeeded)
             {
                 _logger.LogError("Failed to get user");
-                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage});
+                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage });
             }
 
             return Ok(result.Data);
@@ -146,9 +148,9 @@ namespace Presentation.Controllers
             {
                 _logger.LogError("Failed to get users");
                 return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage, result.Succeeded });
-            }   
+            }
 
-            return Ok(result.Data );
+            return Ok(result.Data);
         }
 
         [AllowAnonymous]
@@ -161,11 +163,11 @@ namespace Presentation.Controllers
             }
 
             var result = await _mediator.Send(new LoginCommand(loginDto));
-            
+
             if (!result.Succeeded)
             {
                 _logger.LogError("Failed to login");
-                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage});
+                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage });
             }
 
             return Ok(result.Data);
@@ -183,13 +185,31 @@ namespace Presentation.Controllers
             var loggedInUserId = _getUserService.GetUserIdFromClaims(User);
 
             var result = await _mediator.Send(new ChangeRoleCommand(loggedInUserId.Data, changeRoleDto));
-            
+
             if (!result.Succeeded)
             {
                 _logger.LogError("Failed to change role");
-                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage});
+                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage });
             }
 
+            return Ok(result.Data);
+        }
+
+        [HttpGet("me")]
+        public async Task<IActionResult> GetLoggedInUser()
+        {
+            var loggedInUserId = _getUserService.GetUserIdFromClaims(User);
+            if (loggedInUserId == null)
+            {
+                _logger.LogWarning("User not found.");
+                return BadRequest("User not found.");
+            }
+            var result = await _mediator.Send(new GetLoggedInUserQuery(loggedInUserId.Data));
+            if (result == null || !result.Succeeded)
+            {
+                _logger.LogError("Failed to get logged in user");
+                return BadRequest(new { result.FailLocation, result.Data, result.ErrorMessage });
+            }
             return Ok(result.Data);
         }
     }

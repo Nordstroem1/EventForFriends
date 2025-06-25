@@ -6,25 +6,25 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Queries.EventQueries.GetAllEvents
 {
-    public class GetAllEventsWithinAreaQueryHandler(IGenericRepository<Event> eventRepository, 
-                                                    UserManager<User> userManager, 
-                                                    ILogger<GetAllEventsWithinAreaQueryHandler>logger) : IRequestHandler<GetAllEventsWithinAreaQuery, OperationResult<List<Event>>>
+    public class GetAllEventsWithinAreaQueryHandler(IGenericRepository<Event> eventRepository,
+                                                    UserManager<User> userManager,
+                                                    ILogger<GetAllEventsWithinAreaQueryHandler> logger) : IRequestHandler<GetAllEventsWithinAreaQuery, OperationResult<List<Event>>>
     {
-        
+
         public async Task<OperationResult<List<Event>>> Handle(GetAllEventsWithinAreaQuery request, CancellationToken cancellationToken)
         {
             try
             {
                 var loggedInUser = await userManager.FindByIdAsync(request.UserId);
 
-                if (loggedInUser is null) 
+                if (loggedInUser is null)
                     return OperationResult<List<Event>>.Fail("Could not find the logged in user.", "GetAllEventsWithinAreaQueryHandler");
 
                 var allEvents = await eventRepository.GetAllAsync();
 
                 var nearbyEvents = allEvents
                             .Where(e =>
-                                CalculateDistanceInKilometers(loggedInUser.Latitude, loggedInUser.Longitude, e.Latitude, e.Longitude) 
+                                CalculateDistanceInKilometers(loggedInUser.Latitude, loggedInUser.Longitude, e.Latitude, e.Longitude)
                                 <= request.AllowedDistance).ToList();
 
                 return OperationResult<List<Event>>.Success(nearbyEvents);

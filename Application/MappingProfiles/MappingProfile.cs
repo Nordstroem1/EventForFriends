@@ -31,7 +31,9 @@ namespace Application.MappingProfiles
 
             CreateMap<CreateUserDto, User>()
                      .ForMember(dest => dest.CreatedAt, opt => opt
-                     .MapFrom(src => DateTime.UtcNow));
+                     .MapFrom(src => DateTime.UtcNow))
+                     .ForMember(dest => dest.Latitude, opt => opt.MapFrom(src => double.Parse(src.Latitude, System.Globalization.CultureInfo.InvariantCulture)))
+                     .ForMember(dest => dest.Longitude, opt => opt.MapFrom(src => double.Parse(src.Longitude, System.Globalization.CultureInfo.InvariantCulture)));
         }
-    }
+    } 
 }
