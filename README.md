@@ -1,6 +1,6 @@
 # Event Manager 🎉
 
-Welcome to **Event Manager**! This project is a platform where my friends and I (or anyone) can create events, leave comments, and interact seamlessly. It's built to be both functional and modern, leveraging robust technologies to ensure a great user experience.
+Welcome to **Event Manager**! This project is a platform where my friends and I (or anyone) can create events, leave comments, and interact seamlessly. It's built to be both functional and modern, leveraging robust technologies to ensure a great user experience. 
 
 ## Features ✨
 - **Event Creation:** Organize and share events effortlessly.
@@ -18,8 +18,7 @@ Welcome to **Event Manager**! This project is a platform where my friends and I 
 - **Generic Repository Pattern**: Simplifies data access logic.
 
 ### Frontend
-(Yet to come)
-- **HTML5**, **CSS3**, **JavaScript**: Crafting the user interface.
+[Click Here!](https://github.com/Nordstroem1/EventForFriendsFE).
 
 ## Contributions 🤝
 We welcome contributions from the community! Feel free to:
