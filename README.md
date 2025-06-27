@@ -18,7 +18,7 @@ Welcome to **Event Manager**! This project is a platform where my friends and I 
 - **Generic Repository Pattern**: Simplifies data access logic.
 
 ### Frontend
-[Click Here!](https://github.com/Nordstroem1/EventForFriendsFE).
+[Click Here!](https://github.com/Nordstroem1/EventProjectFE).
 
 ## Contributions 🤝
 We welcome contributions from the community! Feel free to:
